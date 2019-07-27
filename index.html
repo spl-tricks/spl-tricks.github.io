@@ -132,6 +132,9 @@ body{ -webkit-animation: bugfix infinite 1s; }
             <li>
               <!--span class="heading-span">With: </span-->
               
+                <a href="/2019/07/22/MarketingAutomationLogging/#disqus_thread">Comments</a>
+
+              
           </ul>
         </header>
       
@@ -140,9 +143,9 @@ body{ -webkit-animation: bugfix infinite 1s; }
           
             <p>The best way to understand why something does not work is debugging it. Unfortunately, it is not always possible to attach VS or windbg to a running process. In such cases, I usually extend the code with logging and check the output. </p>
 <p><br></p>
-<p>Some time ago I had issues with non-working Marketing Automation condition. This was custom condition and I had code for it. After some time monitoring the MA pool without success, I decided to inject logging into the condition Evaluate method and to troubleshoot this. The conditions are processed by maengine service, thus usual Sitecore Log.Info() call won’t work here since there is no Sitecore.Kernel assembly.  Passing the ILogger via condition constructor won’t work either since the conditions are created using Activator and require parameter-less constructor.  </p>
+<p>Some time ago I had issues with non-working Marketing Automation condition. This was custom condition and I had code for it. After some time monitoring the MA pool without success, I decided to inject logging into the condition Evaluate method to troubleshoot it. The conditions are processed by maengine service, thus usual Sitecore Log.Info() call won’t work here since there is no Sitecore.Kernel assembly reference.  Using DI and passing the ILogger via condition constructor won’t work either since the conditions are created using Activator and require parameter-less constructor.  </p>
 <p><br></p>
-<p>MA has quite elegant extension points, which allow us to get the ILogger from condition. The Evaluate method gets IRuleExecutionContext as a parameter, the interface has only one method Fact which is used for getting contact, interaction and other information. We will use it to get the needed ILogger implementation. I will use test FirstNameCondition further to demonstrate the behavior.  </p>
+<p>MA has quite elegant extension points, which allow us to get the ILogger from condition. The Evaluate method gets IRuleExecutionContext as a parameter, the interface has only one method Fact which is used for getting contact, interaction and other required information. We will use it to get the needed ILogger implementation. I will use test FirstNameCondition further to demonstrate the behavior.  </p>
 <p><br></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">using Serilog;</span><br><span class="line">using Sitecore.Framework.Rules;</span><br><span class="line">using Sitecore.XConnect;</span><br><span class="line">using Sitecore.XConnect.Collection.Model;</span><br><span class="line"></span><br><span class="line">namespace TestCondition</span><br><span class="line">&#123;</span><br><span class="line">    public class FirstNameCondition : ICondition</span><br><span class="line">    &#123;</span><br><span class="line">        public bool Evaluate(IRuleExecutionContext context)</span><br><span class="line">        &#123;</span><br><span class="line">        	var logger = context.Fact&lt;ILogger&gt;();</span><br><span class="line">            logger.Information(&quot;Condition was executed&quot;);</span><br><span class="line">            var contact = context.Fact&lt;Contact&gt;();</span><br><span class="line">            return contact.Personal()?.FirstName == &quot;Sergey&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><br></p>
@@ -238,6 +241,29 @@ body{ -webkit-animation: bugfix infinite 1s; }
 </div>
 
 <div class="scroll-top"><i class="fa fa-arrow-circle-up"></i></div></footer>
+  
+
+		<script type="text/javascript">
+				var disqus_shortname = 'spl-tricks';
+
+		        (function() {
+		            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+		            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+		            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		        })();
+		</script>
+
+		<script type="text/javascript">
+				var disqus_shortname = 'spl-tricks'; 
+
+				(function () {
+					var s = document.createElement('script'); s.async = true;
+					s.type = 'text/javascript';
+					s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+					(document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+				}());
+		</script>
+
   
 
 
