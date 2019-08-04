@@ -3,7 +3,7 @@
   padding: 0;
 }
 body {
-  color: #444;
+  color: #000;
   font-family: 'Open Sans', Tahoma, Arial, Roboto, "Droid Sans", "Helvetica Neue", "Droid Sans Fallback", "Heiti SC", "Hiragino Sans GB", Simsun, sans-serif;
   font-size: 16px;
   height: 100%;
@@ -111,7 +111,7 @@ a:hover {
   }
 }
 #header a {
-  color: #999;
+  color: #000;
 }
 #header a:hover {
   color: #009cdc;
@@ -467,7 +467,7 @@ article .post-content-index header ul li {
   }
 }
 article .post-content-index header ul li .heading-span {
-  color: #444;
+  color: #000;
   font-weight: 400;
 }
 article .post-content-index header ul li time {
