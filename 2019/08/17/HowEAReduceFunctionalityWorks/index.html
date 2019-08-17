@@ -5,7 +5,7 @@
 <head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="utf-8">
   
-  <title>SPL Advanced Tricks</title>
+  <title>How Experience Analytics Reduce functionality works | SPL Advanced Tricks</title>
   <meta name="author" content="Sergey Plashenko">
   
   <meta name="description" content="Personal blog about my findings and investigations in Sitecore and not only.">
@@ -13,7 +13,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  
+  <meta property="og:title" content="How Experience Analytics Reduce functionality works">
   <meta property="og:site_name" content="SPL Advanced Tricks">
 
   
@@ -90,30 +90,7 @@ body{ -webkit-animation: bugfix infinite 1s; }
     <div class="inner">
       <div class="padding">
         
-          <h2>
-            <script>
-              document.getElementById("page-heading-wrap").style.padding = 0;
-            </script>
-          </h2>
-        
-      </div>
-    </div>
-  </div>
-  <div id="content" class="inner">
-    <div id="main-col" class="alignleft"><div id="wrapper" class="padding">
-  <article class="post">
-  
-  
-    <div class="post-content-index">
-  
-      
-        <header>
-          <!-- <div class="icon"></div> -->
-            
-    
-      <h1 class="metro-title transition"><a href="/2019/08/17/HowEAReduceFunctionalityWorks/">How Experience Analytics Reduce functionality works</a></h1>
-    
-  
+          <h1>How Experience Analytics Reduce functionality works</h1>
           <ul>
             <li>
               <span class="heading-span">Posted on: </span>
@@ -132,16 +109,25 @@ body{ -webkit-animation: bugfix infinite 1s; }
             <li>
               <!--span class="heading-span">With: </span-->
               
-                <a href="/2019/08/17/HowEAReduceFunctionalityWorks/#disqus_thread">Comments</a>
+                <a href="#disqus_thread">Comments</a>
 
               
+            </li>
           </ul>
-        </header>
+        
+      </div>
+    </div>
+  </div>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper" class="padding"><article class="post">
+  
+  
+    <div class="post-content">
+  
       
       <div class="entry">
         
-          
-            <p>During the five years working with Experience Analytics, I have never had a chance to deep dive into segment reducing functionality.<br>Several days ago, the time has finally came and I had to find out how it works. I decided to describe it in detail, possibly somebody will find this interesting.<br><br>I used 8.2.7 version for demonstration, though the functionality should be pretty much the same in previous versions and revisions of 8.x.</p>
+          <p>During the five years working with Experience Analytics, I have never had a chance to deep dive into segment reducing functionality.<br>Several days ago, the time has finally came and I had to find out how it works. I decided to describe it in detail, possibly somebody will find this interesting.<br><br>I used 8.2.7 version for demonstration, though the functionality should be pretty much the same in previous versions and revisions of 8.x.</p>
 <h2 id="Demo-Data"><a href="#Demo-Data" class="headerlink" title="Demo Data"></a>Demo Data</h2><p>I created a small example to demonstrate the reduce manager work.<br>There is <em>Campaign Group 1</em> campaign group, which has 3 campaigns with the following names:<br><em>Campaign1</em><br><em>Campaign2</em><br><em>Campaign3</em></p>
 <p>The report for the <em>Campaign Group 1</em> group looks as follows:</p>
 <p><img src="/images/HowEAReduceFunctionalityWorks/SeparateNumbers.png" alt></p>
@@ -188,14 +174,46 @@ body{ -webkit-animation: bugfix infinite 1s; }
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ERROR [Experience Analytics]: Error trying to reduce segment: ea364d4d-b85c-4c07-88d1-51edcaa1a160, date: 8/16/2019, site: website</span><br></pre></td></tr></table></figure>
 <p>Though, the error is not critical and does not seem to break something.</p>
 
-          
         
       </div>
       <footer>
         
-          <div class="alignright">
-            <a href="/2019/08/17/HowEAReduceFunctionalityWorks/#more" class="more-link">Continue Reading<i class="fa fa-long-arrow-right fa-1"></i></a>
-          </div>
+          
+          
+  
+  <div class="tags">
+    <a href="/tags/Experience-Analytics/">Experience Analytics</a>, <a href="/tags/xDB/">xDB</a>, <a href="/tags/Sitecore/">Sitecore</a>
+  </div>
+
+          <div class="share">
+  
+
+    
+
+    
+
+    
+
+    
+      <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+    
+  
+</div>
+          
+<nav class="article-nav clearfix">
+ 
+
+<div class="article-next">
+<a href="/2019/08/04/MissingDefinitionItems/"  title="How to address &#34;Definition not found&#34; issue during aggregation">
+ <span>How to address &#34;Definition not found&#34; issue during aggregation
+</span>
+<i class="fa fa-long-arrow-right"></i>
+</a>
+</div>
+
+</nav>
+
         
         <div class="clearfix"></div>
       </footer>
@@ -203,182 +221,17 @@ body{ -webkit-animation: bugfix infinite 1s; }
 </article>
 
 
+<section id="comment">
+  <h2 class="title">Comments</h2>
 
-
-  <article class="post">
   
+  <div id="disqus_thread"></div>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
   
-    <div class="post-content-index">
-  
-      
-        <header>
-          <!-- <div class="icon"></div> -->
-            
-    
-      <h1 class="metro-title transition"><a href="/2019/08/04/MissingDefinitionItems/">How to address &#34;Definition not found&#34; issue during aggregation</a></h1>
-    
-  
-          <ul>
-            <li>
-              <span class="heading-span">Posted on: </span>
-              <time datetime="2019-08-04T14:02:33.000Z">2019-08-04</time>
-            </li>
-            
-              <li>
-                <span class="heading-span">By: </span>
+</section>
 
-                
-                  <a href="/">Sergey Plashenko</a>
-                
-
-              </li>
-            
-            <li>
-              <!--span class="heading-span">With: </span-->
-              
-                <a href="/2019/08/04/MissingDefinitionItems/#disqus_thread">Comments</a>
-
-              
-          </ul>
-        </header>
-      
-      <div class="entry">
-        
-          
-            <h3 id="Issue-description"><a href="#Issue-description" class="headerlink" title="Issue description"></a>Issue description</h3><p>The following exception is quite popular and can be found in the log files when the processing speed is low:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">165164 14:04:56 WARN  Failed to process interaction with Id 2e58c56c-d6c7-452b-a1d1-2b068c15372c and ContactId &#123;F9BE0608-E18C-4A35-B2C2-EA3C5226C107&#125;. Processing will be retried later.</span><br><span class="line">Exception: System.InvalidOperationException</span><br><span class="line">Message: Definition not found: itemId: &apos;&#123;38AAA41B-E509-4083-B876-799B809F13BA&#125;&apos; culture: &apos;Invariant Language (Invariant Country)&apos; type: &apos;Sitecore.Marketing.Definitions.Goals.IGoalDefinition&apos;</span><br><span class="line">Source: Sitecore.ExperienceAnalytics.Aggregation</span><br><span class="line">   at Sitecore.ExperienceAnalytics.Aggregation.Pipeline.SegmentProcessor.ProcessSegments(AggregationPipelineArgs args, IEnumerable`1 segments)</span><br><span class="line">   at Sitecore.ExperienceAnalytics.Aggregation.Pipeline.SegmentProcessor.OnProcess(AggregationPipelineArgs args)</span><br><span class="line">   at Sitecore.Analytics.Aggregation.Pipeline.AggregationProcessor.Process(AggregationPipelineArgs args)</span><br><span class="line">   at (Object , Object )</span><br><span class="line">   at Sitecore.Pipelines.CorePipeline.Run(PipelineArgs args)</span><br><span class="line">   at Sitecore.Pipelines.DefaultCorePipelineManager.Run(String pipelineName, PipelineArgs args, String pipelineDomain, Boolean failIfNotExists)</span><br><span class="line">   at Sitecore.Pipelines.DefaultCorePipelineManager.Run(String pipelineName, PipelineArgs args, String pipelineDomain)</span><br><span class="line">   at Sitecore.Analytics.Aggregation.Pipeline.AggregationPipeline.Run(AggregationPipelineArgs args)</span><br><span class="line">   at Sitecore.Analytics.Aggregation.InteractionBatchAggregator.Aggregate(IVisitAggregationContext interaction, InteractionAggregationType interactionAggregationType, RebuildTargets targets)</span><br><span class="line">   at Sitecore.Analytics.Aggregation.InteractionBatchAggregator.Aggregate(ItemBatch`1 batch, InteractionAggregationType interactionAggregationType, RebuildTargets targets)</span><br><span class="line"></span><br><span class="line">Nested Exception</span><br><span class="line"></span><br><span class="line">Exception: System.InvalidOperationException</span><br><span class="line">Message: Definition not found: itemId: &apos;&#123;38AAA41B-E509-4083-B876-799B809F13BA&#125;&apos; culture: &apos;Invariant Language (Invariant Country)&apos; type: &apos;Sitecore.Marketing.Definitions.Goals.IGoalDefinition&apos;</span><br><span class="line">Source: Sitecore.ExperienceAnalytics.Core</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
-<p><br></p>
-<p>As it is seen from the stacktrace and the message, the exception is thrown during aggregation when converted goal can’t be found.<br>The processing pool will contain the records with attempts &gt; 0 in this case:<br><img src="/images/pool.png" alt="pool"></p>
-<p><br><br>As a result, each record with missing goal will be tried to be processed 10 times. Even with small amount of data, this will slow down the aggregation process significantly.<br><br>There are two main sources of the marketing definition items:</p>
-<ol>
-<li>Master database is the main marketing definitions storage (source of trust). Definitions are retrieved from the master database when standolone instance is used.</li>
-<li>Reporting database is the definitions storage, which is used for aggregation if dedicated processing server is in place.</li>
-</ol>
-<p><br></p>
-<p>To address the issue, the following actions can be performed:</p>
-<ol>
-<li>Try to find the item which corresponds to the missing item ID in the master database. If the item is present in the master database, the issue is most likely happens due to the fact that the definition is missing in the reporting database. <a href="https://doc.sitecore.com/users/91/sitecore-experience-platform/en/deploy-marketing-definitions-and-taxonomies.html" target="_blank" rel="noopener">Redeploying the definitions</a> using the Control Panel must solve the issue.</li>
-<li>In case if the item is missing, everything becomes a bit more difficult. The situation is the following: there is data in the collection database, which was collected for a goal which was removed. </li>
-</ol>
-<p><br></p>
-<h3 id="What-to-do-if-the-definition-is-missing-in-the-master-database"><a href="#What-to-do-if-the-definition-is-missing-in-the-master-database" class="headerlink" title="What to do if the definition is missing in the master database?"></a>What to do if the definition is missing in the master database?</h3><p>The collection database stores the id of the goal item and during the aggregation, it should be retrieved from the definitions storage to get addition info (like assets).<br>Thus, to overcome the exceptions, it is possible to recreate the goals with the same ids as stored in the collection database. Here is the approach which I used:</p>
-<ol>
-<li>Backup the solution.</li>
-<li>For each problematic id from the log files like 38AAA41B-E509-4083-B876-799B809F13BA here:<br><em>Definition not found: itemId: ‘<strong>{38AAA41B-E509-4083-B876-799B809F13BA}’</strong> culture: ‘Invariant Language (Invariant Country)’ type: ‘Sitecore.Marketing.Definitions.Goals.IGoalDefinition’</em><br><br>Ensure that the item does not exist and create a new goal item under <em>/sitecore/system/Marketing Control Panel/Goals</em> item. Do not deploy it. You can name it the way you want.  </li>
-<li>Copy the created goal id. </li>
-<li>Now, we need to replace this id in the master database with the one from the log files. It can be done using the following SQL code executed against Master database:<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">declare</span> @itemId uniqueidentifier = <span class="string">'&#123;F451B31C-71D2-4433-B449-C9886E9A09EC&#125;'</span> <span class="comment">-- Your created goal id goes here.</span></span><br><span class="line"><span class="keyword">declare</span> @oldItemId uniqueidentifier = <span class="string">'&#123;38AAA41B-E509-4083-B876-799B809F13BA&#125;'</span> <span class="comment">-- id from the log files goes here.</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">UPDATE</span> [dbo].SharedFields</span><br><span class="line"><span class="keyword">SET</span> ItemId = @oldItemId</span><br><span class="line"><span class="keyword">WHERE</span> ItemId = @itemId</span><br><span class="line"></span><br><span class="line"><span class="keyword">UPDATE</span> [dbo].VersionedFields</span><br><span class="line"><span class="keyword">SET</span> ItemId = @oldItemId</span><br><span class="line"><span class="keyword">WHERE</span> ItemId = @itemId</span><br><span class="line"></span><br><span class="line"><span class="keyword">UPDATE</span> [dbo].Items</span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">ID</span> = @oldItemId</span><br><span class="line"><span class="keyword">WHERE</span> <span class="keyword">ID</span> = @itemId</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<p><br></p>
-<p>   Before running the update scripts, it is better to ensure that the item does not exist in DB:<br>   <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> *</span><br><span class="line"><span class="keyword">FROM</span> [dbo].Items <span class="keyword">where</span> <span class="keyword">ID</span> = @oldItemId</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> *</span><br><span class="line"><span class="keyword">FROM</span> [dbo].SharedFields <span class="keyword">where</span> ItemId = @oldItemId</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> *</span><br><span class="line"><span class="keyword">FROM</span> [dbo].VersionedFields <span class="keyword">where</span> ItemId = @oldItemId*</span><br></pre></td></tr></table></figure></p>
-<p><br></p>
-<p>   Since Sitecore has number of caching layers, to have the relevant data in the Content Editor, I recommend stopping the Sitecore instance when performing the SQL operation. </p>
-<ol start="5">
-<li>Start Sitecore instance and check that the created goals have correct IDs now (if you do not stop the process during running the scripts, you may get old IDs since they will be taken from cache).</li>
-<li>Deploy the goals.</li>
-<li>Check if the exceptions disappeared from the log files for the recreated goal ids.</li>
-</ol>
-<p><br></p>
-<p>The approach was checked for 8.2.7, should work for 9.x in the same way. The same behavior may be experienced for other marketing definitions (like campaigns). The approach is the same, the only difference is the definition item which needs to be created on the 2nd step.</p>
-<p><br></p>
-<p>P.S. When completing this article, I though about using ItemManager to create the item with corresponding ID. Did not check it, though I believe it should work as well.</p>
-<p><br></p>
-<p>P.P.S Do not remove the marketing definitions once created!</p>
-
-          
-        
-      </div>
-      <footer>
-        
-          <div class="alignright">
-            <a href="/2019/08/04/MissingDefinitionItems/#more" class="more-link">Continue Reading<i class="fa fa-long-arrow-right fa-1"></i></a>
-          </div>
-        
-        <div class="clearfix"></div>
-      </footer>
-    </div>
-</article>
-
-
-
-
-  <article class="post">
-  
-  
-    <div class="post-content-index">
-  
-      
-        <header>
-          <!-- <div class="icon"></div> -->
-            
-    
-      <h1 class="metro-title transition"><a href="/2019/07/22/MarketingAutomationLogging/">How to inject logging to Marketing Automation condition</a></h1>
-    
-  
-          <ul>
-            <li>
-              <span class="heading-span">Posted on: </span>
-              <time datetime="2019-07-22T20:31:00.000Z">2019-07-22</time>
-            </li>
-            
-              <li>
-                <span class="heading-span">By: </span>
-
-                
-                  <a href="/">Sergey Plashenko</a>
-                
-
-              </li>
-            
-            <li>
-              <!--span class="heading-span">With: </span-->
-              
-                <a href="/2019/07/22/MarketingAutomationLogging/#disqus_thread">Comments</a>
-
-              
-          </ul>
-        </header>
-      
-      <div class="entry">
-        
-          
-            <p>The best way to understand why something does not work is debugging it. Unfortunately, it is not always possible to attach VS or windbg to a running process. In such cases, I usually extend the code with logging and check the output. </p>
-<p><br></p>
-<p>Some time ago I had issues with non-working Marketing Automation condition. This was custom condition and I had code for it. After some time monitoring the MA pool without success, I decided to inject logging into the condition Evaluate method to troubleshoot it. The conditions are processed by maengine service, thus usual Sitecore Log.Info() call won’t work here since there is no Sitecore.Kernel assembly reference.  Using DI and passing the ILogger via condition constructor won’t work either since the conditions are created using Activator and require parameter-less constructor.  </p>
-<p><br></p>
-<p>MA has quite elegant extension points, which allow us to get the ILogger from condition. The Evaluate method gets IRuleExecutionContext as a parameter, the interface has only one method Fact which is used for getting contact, interaction and other required information. We will use it to get the needed ILogger implementation. I will use test FirstNameCondition further to demonstrate the behavior.  </p>
-<p><br></p>
-<figure class="highlight cs"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> Serilog;</span><br><span class="line"><span class="keyword">using</span> Sitecore.Framework.Rules;</span><br><span class="line"><span class="keyword">using</span> Sitecore.XConnect;</span><br><span class="line"><span class="keyword">using</span> Sitecore.XConnect.Collection.Model;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">TestCondition</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">FirstNameCondition</span> : <span class="title">ICondition</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">bool</span> <span class="title">Evaluate</span>(<span class="params">IRuleExecutionContext context</span>)</span></span><br><span class="line"><span class="function"></span>        &#123;</span><br><span class="line">            <span class="keyword">var</span> logger = context.Fact&lt;ILogger&gt;();</span><br><span class="line">            logger.Information(<span class="string">"Condition was executed"</span>);</span><br><span class="line">            <span class="keyword">var</span> contact = context.Fact&lt;Contact&gt;();</span><br><span class="line">            <span class="keyword">return</span> contact.Personal()?.FirstName == <span class="string">"Sergey"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><br></p>
-<p>By default, the ILogger object is not present in context and we need to register it. It can be done by overriding the PopulateScopedFacts method of the ConditionEvaluationService.  </p>
-<figure class="highlight cs"><table><tr><td class="code"><pre><span class="line">public class ConditionEvaluationService : Sitecore.Xdb.MarketingAutomation.Rules.ConditionEvaluationService</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> ILogger&lt;Sitecore.Xdb.MarketingAutomation.Rules.ConditionEvaluationService&gt; _logger;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ConditionEvaluationService</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">        ILogger&lt;Sitecore.Xdb.MarketingAutomation.Rules.ConditionEvaluationService&gt; logger,</span></span></span><br><span class="line"><span class="function"><span class="params">        IConditionSerializer serializer, IServiceProvider serviceProvider</span>) : <span class="title">base</span>(<span class="params">logger, serializer,</span></span></span><br><span class="line"><span class="function"><span class="params">        serviceProvider</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">        _logger = logger;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ConditionEvaluationService</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">        ILogger&lt;Sitecore.Xdb.MarketingAutomation.Rules.ConditionEvaluationService&gt; logger,</span></span></span><br><span class="line"><span class="function"><span class="params">        IConditionSerializer serializer, IConditionCache cache, IServiceProvider serviceProvider</span>) : <span class="title">base</span>(<span class="params">logger,</span></span></span><br><span class="line"><span class="function"><span class="params">        serializer, cache, serviceProvider</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">        _logger = logger;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">PopulateScopedFacts</span>(<span class="params">FactSpecificier facts, IContactProcessingContext processingContext,</span></span></span><br><span class="line"><span class="function"><span class="params">        IConditionServices conditionServices, ISegmentationServiceContext segmentationServiceContext</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">        <span class="keyword">base</span>.PopulateScopedFacts(facts, processingContext, conditionServices, segmentationServiceContext);</span><br><span class="line">        facts.Fact&lt;ILogger&gt;(_logger);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><br></p>
-<p>The corresponding service must be replaced by a custom one in the following file:  </p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">App_data\jobs\continuous\AutomationEngine\App_Data\Config\sitecore\MarketingAutomation\sc.MarketingAutomation.ConditionEvaluationService.xml</span><br></pre></td></tr></table></figure>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">MarketingAutomation.Rules.ConditionEvaluationService</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">Type</span>&gt;</span>CustomNamespace.ConditionEvaluationService, CustomAssembly<span class="tag">&lt;/<span class="name">Type</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">As</span>&gt;</span>Sitecore.Xdb.MarketingAutomation.Core.Rules.IConditionEvaluationService, Sitecore.Xdb.MarketingAutomation.Core<span class="tag">&lt;/<span class="name">As</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">LifeTime</span>&gt;</span>Singleton<span class="tag">&lt;/<span class="name">LifeTime</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">MarketingAutomation.Rules.ConditionEvaluationService</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-          
-        
-      </div>
-      <footer>
-        
-          <div class="alignright">
-            <a href="/2019/07/22/MarketingAutomationLogging/#more" class="more-link">Continue Reading<i class="fa fa-long-arrow-right fa-1"></i></a>
-          </div>
-        
-        <div class="clearfix"></div>
-      </footer>
-    </div>
-</article>
-
-
-
-
-
-<nav id="pagination">
-  
-  
-  <div class="clearfix"></div>
-</nav></div></div>
+</div></div>
     <aside id="sidebar" class="alignright"><div class="padding">
 	
 	  <div class="search">
@@ -461,7 +314,7 @@ body{ -webkit-animation: bugfix infinite 1s; }
 		        (function() {
 		            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
 		            
-					var page_has_comments = ''; 
+					var page_has_comments = 'true'; 
 
 					if (page_has_comments){
 						dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
