@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Archives | SPL Advanced Tricks</title>
+  <title>Creating and updating public links via REST API in Sitecore Content Hub | SPL Advanced Tricks</title>
   <meta name="author" content="Sergey Plashenko">
   
   <meta name="description" content="Personal blog about my findings and investigations in Sitecore and not only.">
@@ -13,7 +13,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  
+  <meta property="og:title" content="Creating and updating public links via REST API in Sitecore Content Hub"/>
   <meta property="og:site_name" content="SPL Advanced Tricks"/>
 
   
@@ -90,214 +90,114 @@ body{ -webkit-animation: bugfix infinite 1s; }
     <div class="inner">
       <div class="padding">
         
-          <h2>
-            <script>
-              document.getElementById("page-heading-wrap").style.padding = 0;
-            </script>
-          </h2>
+          <h1>Creating and updating public links via REST API in Sitecore Content Hub</h1>
+          <ul>
+            <li>
+              <span class="heading-span">Posted on: </span>
+              <time datetime="2021-11-09T20:03:00.000Z">2021-11-09</time>
+            </li>
+            
+              <li>
+                <span class="heading-span">By: </span>
+
+                
+                  <a href="/">Sergey Plashenko</a>
+                
+
+              </li>
+            
+            <li>
+              <!--span class="heading-span">With: </span-->
+              
+                <a href="#disqus_thread">Comments</a>
+
+              
+            </li>
+          </ul>
         
       </div>
     </div>
   </div>
   <div id="content" class="inner">
-    <div id="main-col" class="alignleft"><div id="wrapper" class="padding">
-<h2 class="archive-title">Archives</h2>
+    <div id="main-col" class="alignleft"><div id="wrapper" class="padding"><article class="post">
+  
+  
+    <div class="post-content">
+  
+      
+      <div class="entry">
+        
+          <p>To create or update a public link you need to have X-Auth-Token header set for all requests which you send. It can be obtained as described here: <a target="_blank" rel="noopener" href="https://docs.stylelabs.com/contenthub/4.1.x/content/integrations/rest-api/authenticate/get-token.html">https://docs.stylelabs.com/contenthub/4.1.x/content/integrations/rest-api/authenticate/get-token.html</a></p>
+<h2 id="Create-a-public-link-for-an-asset"><a href="#Create-a-public-link-for-an-asset" class="headerlink" title="Create a public link for an asset"></a>Create a public link for an asset</h2><p>Send a <strong>POST</strong> request to <em>/api/entitydefinitions/M.PublicLink/entities</em> URL with the following body:</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	<span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">		<span class="attr">&quot;RelativeUrl&quot;</span>: <span class="string">&quot;067baf76e8eb4ef2a6ece6fe611013a0&quot;</span>,</span><br><span class="line">		<span class="attr">&quot;Resource&quot;</span>: <span class="string">&quot;downloadOriginal&quot;</span>,</span><br><span class="line">		<span class="attr">&quot;ExpirationDate&quot;</span>: <span class="string">&quot;2021-10-30T12:16:00.176Z&quot;</span>,</span><br><span class="line">		<span class="attr">&quot;ConversionConfiguration&quot;</span>: &#123;&#125;</span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">&quot;is_root_taxonomy_item&quot;</span>: <span class="literal">false</span>,</span><br><span class="line">	<span class="attr">&quot;is_path_root&quot;</span>: <span class="literal">false</span>,</span><br><span class="line">	<span class="attr">&quot;inherits_security&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">	<span class="attr">&quot;entitydefinition&quot;</span>: &#123;</span><br><span class="line">		<span class="attr">&quot;href&quot;</span>: <span class="string">&quot;https://YourCHHostnameGoesHere/api/entitydefinitions/M.PublicLink&quot;</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">&quot;relations&quot;</span>: &#123;</span><br><span class="line">		<span class="attr">&quot;AssetToPublicLink&quot;</span>: &#123;</span><br><span class="line">			<span class="attr">&quot;parents&quot;</span>: [</span><br><span class="line">				&#123;</span><br><span class="line">					<span class="attr">&quot;href&quot;</span>: <span class="string">&quot;https://YourCHHostnameGoesHere/api/entities/IDOFYOURASSET&quot;</span></span><br><span class="line">				&#125;</span><br><span class="line">			]</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<p>If the operation is successful, 201 response code must be received and the body must have id and identifier of the created entity.</p>
+<p>RelativeUrl must be a unique random guid.</p>
+<h2 id="Wait-until-link-is-ready"><a href="#Wait-until-link-is-ready" class="headerlink" title="Wait until link is ready"></a>Wait until link is ready</h2><p>Send <strong>GET</strong> request to <em>/api/entities/<strong>PublicLinkEntityId</strong></em> and check the properties.Status value in the returned response. When it is <strong>Completed</strong>, the link is ready. </p>
+<h2 id="Update-existing-public-link"><a href="#Update-existing-public-link" class="headerlink" title="Update existing public link"></a>Update existing public link</h2><p>Send a <strong>PUT</strong> request to <em>api/entities/<strong>PublicLinkEntityId</strong></em> URL with the body which has modifications to the properties which needs to be updated. </p>
+<p>For example, changing the ExpirationDate can be done as follows:</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;ExpirationDate&quot;</span>: <span class="string">&quot;2021-11-30T12:16:00.176Z&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">&quot;entitydefinition&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;href&quot;</span>: <span class="string">&quot;https://YourCHHostnameGoesHere/api/entitydefinitions/M.PublicLink&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-  <div class="archive">
-    
-      <article class="post">
-        <div class="post-content-index">
-        <header>
-            
-              <h1 class="metro-title transition"><a href="/2021/11/09/PublicLinkAPI/" target="_blank">Creating and updating public links via REST API in Sitecore Content Hub</a></h1>
-            
-          <ul>
-            <li>
-              <span class="heading-span">Posted on: </span>
-              <time datetime="2021-11-09T20:03:00.000Z">2021-11-09</time>
-            </li>
-            
-              <li>
-                <span class="heading-span">By: </span>
+<p>entitydefinition property is mandatory and must be present in the request. </p>
 
-                
-                  <a href="/">Sergey Plashenko</a>
-                
-
-              </li>
-            
-            <li>
-              <span class="heading-span">With: </span>
-              
-                <a href="/2021/11/09/PublicLinkAPI/#disqus_thread">Comments</a>
-
-              
-          </ul>
-        </header>
-      </article>
-    
-      <article class="post">
-        <div class="post-content-index">
-        <header>
-            
-              <h1 class="metro-title transition"><a href="/2021/11/09/UsingForeachWindbg/" target="_blank">Using .foreach in windbg to find array entities sizes</a></h1>
-            
-          <ul>
-            <li>
-              <span class="heading-span">Posted on: </span>
-              <time datetime="2021-11-09T20:03:00.000Z">2021-11-09</time>
-            </li>
-            
-              <li>
-                <span class="heading-span">By: </span>
-
-                
-                  <a href="/">Sergey Plashenko</a>
-                
-
-              </li>
-            
-            <li>
-              <span class="heading-span">With: </span>
-              
-                <a href="/2021/11/09/UsingForeachWindbg/#disqus_thread">Comments</a>
-
-              
-          </ul>
-        </header>
-      </article>
-    
-      <article class="post">
-        <div class="post-content-index">
-        <header>
-            
-              <h1 class="metro-title transition"><a href="/2019/09/07/SOLRQueryReplaying/" target="_blank">How to get the SOLR query generated by xConnect search and replay it</a></h1>
-            
-          <ul>
-            <li>
-              <span class="heading-span">Posted on: </span>
-              <time datetime="2019-09-07T20:52:57.000Z">2019-09-07</time>
-            </li>
-            
-              <li>
-                <span class="heading-span">By: </span>
-
-                
-                  <a href="/">Sergey Plashenko</a>
-                
-
-              </li>
-            
-            <li>
-              <span class="heading-span">With: </span>
-              
-                <a href="/2019/09/07/SOLRQueryReplaying/#disqus_thread">Comments</a>
-
-              
-          </ul>
-        </header>
-      </article>
-    
-      <article class="post">
-        <div class="post-content-index">
-        <header>
-            
-              <h1 class="metro-title transition"><a href="/2019/08/17/HowEAReduceFunctionalityWorks/" target="_blank">How Experience Analytics Reduce functionality works</a></h1>
-            
-          <ul>
-            <li>
-              <span class="heading-span">Posted on: </span>
-              <time datetime="2019-08-17T20:24:48.000Z">2019-08-17</time>
-            </li>
-            
-              <li>
-                <span class="heading-span">By: </span>
-
-                
-                  <a href="/">Sergey Plashenko</a>
-                
-
-              </li>
-            
-            <li>
-              <span class="heading-span">With: </span>
-              
-                <a href="/2019/08/17/HowEAReduceFunctionalityWorks/#disqus_thread">Comments</a>
-
-              
-          </ul>
-        </header>
-      </article>
-    
-      <article class="post">
-        <div class="post-content-index">
-        <header>
-            
-              <h1 class="metro-title transition"><a href="/2019/08/04/MissingDefinitionItems/" target="_blank">How to address &#34;Definition not found&#34; issue during aggregation</a></h1>
-            
-          <ul>
-            <li>
-              <span class="heading-span">Posted on: </span>
-              <time datetime="2019-08-04T14:02:33.000Z">2019-08-04</time>
-            </li>
-            
-              <li>
-                <span class="heading-span">By: </span>
-
-                
-                  <a href="/">Sergey Plashenko</a>
-                
-
-              </li>
-            
-            <li>
-              <span class="heading-span">With: </span>
-              
-                <a href="/2019/08/04/MissingDefinitionItems/#disqus_thread">Comments</a>
-
-              
-          </ul>
-        </header>
-      </article>
-    
-      <article class="post">
-        <div class="post-content-index">
-        <header>
-            
-              <h1 class="metro-title transition"><a href="/2019/07/22/MarketingAutomationLogging/" target="_blank">How to inject logging to Marketing Automation condition</a></h1>
-            
-          <ul>
-            <li>
-              <span class="heading-span">Posted on: </span>
-              <time datetime="2019-07-22T20:31:00.000Z">2019-07-22</time>
-            </li>
-            
-              <li>
-                <span class="heading-span">By: </span>
-
-                
-                  <a href="/">Sergey Plashenko</a>
-                
-
-              </li>
-            
-            <li>
-              <span class="heading-span">With: </span>
-              
-                <a href="/2019/07/22/MarketingAutomationLogging/#disqus_thread">Comments</a>
-
-              
-          </ul>
-        </header>
-      </article>
-    
+        
+      </div>
+      <footer>
+        
+          
+          
+  
+  <div class="tags">
+    <a href="/tags/Content-Hub/">Content Hub</a>
   </div>
 
+          <div class="share">
+  
+
+    
+
+    
+
+    
+
+    
+      <a target="_blank" rel="noopener" href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+    
+  
+</div>
+          
+<nav class="article-nav clearfix">
+ 
+
+<div class="article-next">
+<a href="/2021/11/09/UsingForeachWindbg/"  title="Using .foreach in windbg to find array entities sizes">
+ <span>Using .foreach in windbg to find array entities sizes
+</span>
+<i class="fa fa-long-arrow-right"></i>
+</a>
+</div>
+
+</nav>
+
+        
+        <div class="clearfix"></div>
+      </footer>
+    </div>
+</article>
 
 
+<section id="comment">
+  <h2 class="title">Comments</h2>
 
-   </div></div>
+  
+  <div id="disqus_thread"></div>
+  <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a target="_blank" rel="noopener" href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  
+</section>
+
+</div></div>
     <aside id="sidebar" class="alignright"><div class="padding">
 	
 	  <div class="search">
@@ -396,7 +296,7 @@ body{ -webkit-animation: bugfix infinite 1s; }
 		        (function() {
 		            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
 		            
-					var page_has_comments = ''; 
+					var page_has_comments = 'true'; 
 
 					if (page_has_comments){
 						dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';

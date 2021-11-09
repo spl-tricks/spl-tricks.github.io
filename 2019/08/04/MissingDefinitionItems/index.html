@@ -2,7 +2,7 @@
 
 <html lang="en">
   
-<head><meta name="generator" content="Hexo 3.9.0">
+<head>
   <meta charset="utf-8">
   
   <title>How to address &#34;Definition not found&#34; issue during aggregation | SPL Advanced Tricks</title>
@@ -13,15 +13,15 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="How to address &#34;Definition not found&#34; issue during aggregation">
-  <meta property="og:site_name" content="SPL Advanced Tricks">
+  <meta property="og:title" content="How to address &#34;Definition not found&#34; issue during aggregation"/>
+  <meta property="og:site_name" content="SPL Advanced Tricks"/>
 
   
-    <meta property="og:image" content>
+    <meta property="og:image" content=""/>
   
 
   
-    <meta http-equiv="Content-Language" content="en">
+    <meta http-equiv="Content-Language" content="en"/>
   
 
   <link href="/img/favicon.png" rel="icon">
@@ -63,8 +63,8 @@ body{ -webkit-animation: bugfix infinite 1s; }
 
 
   
-<link rel="stylesheet" href="/css/prism-vs.css" type="text/css"></head>
-</html>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
 
 <body>
   <header id="header" class="inner"><div class="padding">
@@ -127,43 +127,48 @@ body{ -webkit-animation: bugfix infinite 1s; }
       
       <div class="entry">
         
-          <h3 id="Issue-description"><a href="#Issue-description" class="headerlink" title="Issue description"></a>Issue description</h3><p>The following exception is quite popular and can be found in the log files when the processing speed is low:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">165164 14:04:56 WARN  Failed to process interaction with Id 2e58c56c-d6c7-452b-a1d1-2b068c15372c and ContactId &#123;F9BE0608-E18C-4A35-B2C2-EA3C5226C107&#125;. Processing will be retried later.</span><br><span class="line">Exception: System.InvalidOperationException</span><br><span class="line">Message: Definition not found: itemId: &apos;&#123;38AAA41B-E509-4083-B876-799B809F13BA&#125;&apos; culture: &apos;Invariant Language (Invariant Country)&apos; type: &apos;Sitecore.Marketing.Definitions.Goals.IGoalDefinition&apos;</span><br><span class="line">Source: Sitecore.ExperienceAnalytics.Aggregation</span><br><span class="line">   at Sitecore.ExperienceAnalytics.Aggregation.Pipeline.SegmentProcessor.ProcessSegments(AggregationPipelineArgs args, IEnumerable`1 segments)</span><br><span class="line">   at Sitecore.ExperienceAnalytics.Aggregation.Pipeline.SegmentProcessor.OnProcess(AggregationPipelineArgs args)</span><br><span class="line">   at Sitecore.Analytics.Aggregation.Pipeline.AggregationProcessor.Process(AggregationPipelineArgs args)</span><br><span class="line">   at (Object , Object )</span><br><span class="line">   at Sitecore.Pipelines.CorePipeline.Run(PipelineArgs args)</span><br><span class="line">   at Sitecore.Pipelines.DefaultCorePipelineManager.Run(String pipelineName, PipelineArgs args, String pipelineDomain, Boolean failIfNotExists)</span><br><span class="line">   at Sitecore.Pipelines.DefaultCorePipelineManager.Run(String pipelineName, PipelineArgs args, String pipelineDomain)</span><br><span class="line">   at Sitecore.Analytics.Aggregation.Pipeline.AggregationPipeline.Run(AggregationPipelineArgs args)</span><br><span class="line">   at Sitecore.Analytics.Aggregation.InteractionBatchAggregator.Aggregate(IVisitAggregationContext interaction, InteractionAggregationType interactionAggregationType, RebuildTargets targets)</span><br><span class="line">   at Sitecore.Analytics.Aggregation.InteractionBatchAggregator.Aggregate(ItemBatch`1 batch, InteractionAggregationType interactionAggregationType, RebuildTargets targets)</span><br><span class="line"></span><br><span class="line">Nested Exception</span><br><span class="line"></span><br><span class="line">Exception: System.InvalidOperationException</span><br><span class="line">Message: Definition not found: itemId: &apos;&#123;38AAA41B-E509-4083-B876-799B809F13BA&#125;&apos; culture: &apos;Invariant Language (Invariant Country)&apos; type: &apos;Sitecore.Marketing.Definitions.Goals.IGoalDefinition&apos;</span><br><span class="line">Source: Sitecore.ExperienceAnalytics.Core</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
-<p><br></p>
+          <h3 id="Issue-description"><a href="#Issue-description" class="headerlink" title="Issue description"></a>Issue description</h3><p>The following exception is quite popular and can be found in the log files when the processing speed is low:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">165164 14:04:56 WARN  Failed to process interaction with Id 2e58c56c-d6c7-452b-a1d1-2b068c15372c and ContactId &#123;F9BE0608-E18C-4A35-B2C2-EA3C5226C107&#125;. Processing will be retried later.</span><br><span class="line">Exception: System.InvalidOperationException</span><br><span class="line">Message: Definition not found: itemId: &#x27;&#123;38AAA41B-E509-4083-B876-799B809F13BA&#125;&#x27; culture: &#x27;Invariant Language (Invariant Country)&#x27; type: &#x27;Sitecore.Marketing.Definitions.Goals.IGoalDefinition&#x27;</span><br><span class="line">Source: Sitecore.ExperienceAnalytics.Aggregation</span><br><span class="line">   at Sitecore.ExperienceAnalytics.Aggregation.Pipeline.SegmentProcessor.ProcessSegments(AggregationPipelineArgs args, IEnumerable`1 segments)</span><br><span class="line">   at Sitecore.ExperienceAnalytics.Aggregation.Pipeline.SegmentProcessor.OnProcess(AggregationPipelineArgs args)</span><br><span class="line">   at Sitecore.Analytics.Aggregation.Pipeline.AggregationProcessor.Process(AggregationPipelineArgs args)</span><br><span class="line">   at (Object , Object )</span><br><span class="line">   at Sitecore.Pipelines.CorePipeline.Run(PipelineArgs args)</span><br><span class="line">   at Sitecore.Pipelines.DefaultCorePipelineManager.Run(String pipelineName, PipelineArgs args, String pipelineDomain, Boolean failIfNotExists)</span><br><span class="line">   at Sitecore.Pipelines.DefaultCorePipelineManager.Run(String pipelineName, PipelineArgs args, String pipelineDomain)</span><br><span class="line">   at Sitecore.Analytics.Aggregation.Pipeline.AggregationPipeline.Run(AggregationPipelineArgs args)</span><br><span class="line">   at Sitecore.Analytics.Aggregation.InteractionBatchAggregator.Aggregate(IVisitAggregationContext interaction, InteractionAggregationType interactionAggregationType, RebuildTargets targets)</span><br><span class="line">   at Sitecore.Analytics.Aggregation.InteractionBatchAggregator.Aggregate(ItemBatch`1 batch, InteractionAggregationType interactionAggregationType, RebuildTargets targets)</span><br><span class="line"></span><br><span class="line">Nested Exception</span><br><span class="line"></span><br><span class="line">Exception: System.InvalidOperationException</span><br><span class="line">Message: Definition not found: itemId: &#x27;&#123;38AAA41B-E509-4083-B876-799B809F13BA&#125;&#x27; culture: &#x27;Invariant Language (Invariant Country)&#x27; type: &#x27;Sitecore.Marketing.Definitions.Goals.IGoalDefinition&#x27;</span><br><span class="line">Source: Sitecore.ExperienceAnalytics.Core</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<br/>
+
 <p>As it is seen from the stacktrace and the message, the exception is thrown during aggregation when converted goal can’t be found.<br>The processing pool will contain the records with attempts &gt; 0 in this case:<br><img src="/images/pool.png" alt="pool"></p>
-<p><br><br>As a result, each record with missing goal will be tried to be processed 10 times. Even with small amount of data, this will slow down the aggregation process significantly.<br><br>There are two main sources of the marketing definition items:</p>
-<ol>
-<li>Master database is the main marketing definitions storage (source of trust). Definitions are retrieved from the master database when standolone instance is used.</li>
-<li>Reporting database is the definitions storage, which is used for aggregation if dedicated processing server is in place.</li>
-</ol>
-<p><br></p>
+<br/> 
+As a result, each record with missing goal will be tried to be processed 10 times. Even with small amount of data, this will slow down the aggregation process significantly.<br/>
+There are two main sources of the marketing definition items:
+1. Master database is the main marketing definitions storage (source of trust). Definitions are retrieved from the master database when standolone instance is used.
+2. Reporting database is the definitions storage, which is used for aggregation if dedicated processing server is in place.
+
+<br/>
+
 <p>To address the issue, the following actions can be performed:</p>
 <ol>
-<li>Try to find the item which corresponds to the missing item ID in the master database. If the item is present in the master database, the issue is most likely happens due to the fact that the definition is missing in the reporting database. <a href="https://doc.sitecore.com/users/91/sitecore-experience-platform/en/deploy-marketing-definitions-and-taxonomies.html" target="_blank" rel="noopener">Redeploying the definitions</a> using the Control Panel must solve the issue.</li>
+<li>Try to find the item which corresponds to the missing item ID in the master database. If the item is present in the master database, the issue is most likely happens due to the fact that the definition is missing in the reporting database. <a target="_blank" rel="noopener" href="https://doc.sitecore.com/users/91/sitecore-experience-platform/en/deploy-marketing-definitions-and-taxonomies.html">Redeploying the definitions</a> using the Control Panel must solve the issue.</li>
 <li>In case if the item is missing, everything becomes a bit more difficult. The situation is the following: there is data in the collection database, which was collected for a goal which was removed. </li>
 </ol>
-<p><br></p>
+<br/>
+
 <h3 id="What-to-do-if-the-definition-is-missing-in-the-master-database"><a href="#What-to-do-if-the-definition-is-missing-in-the-master-database" class="headerlink" title="What to do if the definition is missing in the master database?"></a>What to do if the definition is missing in the master database?</h3><p>The collection database stores the id of the goal item and during the aggregation, it should be retrieved from the definitions storage to get addition info (like assets).<br>Thus, to overcome the exceptions, it is possible to recreate the goals with the same ids as stored in the collection database. Here is the approach which I used:</p>
 <ol>
 <li>Backup the solution.</li>
-<li>For each problematic id from the log files like 38AAA41B-E509-4083-B876-799B809F13BA here:<br><em>Definition not found: itemId: ‘<strong>{38AAA41B-E509-4083-B876-799B809F13BA}’</strong> culture: ‘Invariant Language (Invariant Country)’ type: ‘Sitecore.Marketing.Definitions.Goals.IGoalDefinition’</em><br><br>Ensure that the item does not exist and create a new goal item under <em>/sitecore/system/Marketing Control Panel/Goals</em> item. Do not deploy it. You can name it the way you want.  </li>
+<li>For each problematic id from the log files like 38AAA41B-E509-4083-B876-799B809F13BA here:<br><em>Definition not found: itemId: ‘**{38AAA41B-E509-4083-B876-799B809F13BA}’*</em> culture: ‘Invariant Language (Invariant Country)’ type: ‘Sitecore.Marketing.Definitions.Goals.IGoalDefinition’*<br/><br>Ensure that the item does not exist and create a new goal item under <em>/sitecore/system/Marketing Control Panel/Goals</em> item. Do not deploy it. You can name it the way you want.  </li>
 <li>Copy the created goal id. </li>
-<li>Now, we need to replace this id in the master database with the one from the log files. It can be done using the following SQL code executed against Master database:<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">declare</span> @itemId uniqueidentifier = <span class="string">'&#123;F451B31C-71D2-4433-B449-C9886E9A09EC&#125;'</span> <span class="comment">-- Your created goal id goes here.</span></span><br><span class="line"><span class="keyword">declare</span> @oldItemId uniqueidentifier = <span class="string">'&#123;38AAA41B-E509-4083-B876-799B809F13BA&#125;'</span> <span class="comment">-- id from the log files goes here.</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">UPDATE</span> [dbo].SharedFields</span><br><span class="line"><span class="keyword">SET</span> ItemId = @oldItemId</span><br><span class="line"><span class="keyword">WHERE</span> ItemId = @itemId</span><br><span class="line"></span><br><span class="line"><span class="keyword">UPDATE</span> [dbo].VersionedFields</span><br><span class="line"><span class="keyword">SET</span> ItemId = @oldItemId</span><br><span class="line"><span class="keyword">WHERE</span> ItemId = @itemId</span><br><span class="line"></span><br><span class="line"><span class="keyword">UPDATE</span> [dbo].Items</span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">ID</span> = @oldItemId</span><br><span class="line"><span class="keyword">WHERE</span> <span class="keyword">ID</span> = @itemId</span><br></pre></td></tr></table></figure>
-</li>
+<li>Now, we need to replace this id in the master database with the one from the log files. It can be done using the following SQL code executed against Master database:<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">declare</span> <span class="variable">@itemId</span> uniqueidentifier <span class="operator">=</span> <span class="string">&#x27;&#123;F451B31C-71D2-4433-B449-C9886E9A09EC&#125;&#x27;</span> <span class="comment">-- Your created goal id goes here.</span></span><br><span class="line"><span class="keyword">declare</span> <span class="variable">@oldItemId</span> uniqueidentifier <span class="operator">=</span> <span class="string">&#x27;&#123;38AAA41B-E509-4083-B876-799B809F13BA&#125;&#x27;</span> <span class="comment">-- id from the log files goes here.</span></span><br><span class="line"></span><br><span class="line">UPDATE [dbo].SharedFields</span><br><span class="line"><span class="keyword">SET</span> ItemId <span class="operator">=</span> <span class="variable">@oldItemId</span></span><br><span class="line"><span class="keyword">WHERE</span> ItemId <span class="operator">=</span> <span class="variable">@itemId</span></span><br><span class="line"></span><br><span class="line">UPDATE [dbo].VersionedFields</span><br><span class="line"><span class="keyword">SET</span> ItemId <span class="operator">=</span> <span class="variable">@oldItemId</span></span><br><span class="line"><span class="keyword">WHERE</span> ItemId <span class="operator">=</span> <span class="variable">@itemId</span></span><br><span class="line"></span><br><span class="line">UPDATE [dbo].Items</span><br><span class="line"><span class="keyword">SET</span> ID <span class="operator">=</span> <span class="variable">@oldItemId</span></span><br><span class="line"><span class="keyword">WHERE</span> ID <span class="operator">=</span> <span class="variable">@itemId</span></span><br></pre></td></tr></table></figure></li>
 </ol>
-<p><br></p>
-<p>   Before running the update scripts, it is better to ensure that the item does not exist in DB:<br>   <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> *</span><br><span class="line"><span class="keyword">FROM</span> [dbo].Items <span class="keyword">where</span> <span class="keyword">ID</span> = @oldItemId</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> *</span><br><span class="line"><span class="keyword">FROM</span> [dbo].SharedFields <span class="keyword">where</span> ItemId = @oldItemId</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> *</span><br><span class="line"><span class="keyword">FROM</span> [dbo].VersionedFields <span class="keyword">where</span> ItemId = @oldItemId*</span><br></pre></td></tr></table></figure></p>
-<p><br></p>
-<p>   Since Sitecore has number of caching layers, to have the relevant data in the Content Editor, I recommend stopping the Sitecore instance when performing the SQL operation. </p>
-<ol start="5">
-<li>Start Sitecore instance and check that the created goals have correct IDs now (if you do not stop the process during running the scripts, you may get old IDs since they will be taken from cache).</li>
-<li>Deploy the goals.</li>
-<li>Check if the exceptions disappeared from the log files for the recreated goal ids.</li>
-</ol>
-<p><br></p>
+<br/>
+
+<p>   Before running the update scripts, it is better to ensure that the item does not exist in DB:<br>   <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> [dbo].Items <span class="keyword">where</span> ID <span class="operator">=</span> <span class="variable">@oldItemId</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> [dbo].SharedFields <span class="keyword">where</span> ItemId <span class="operator">=</span> <span class="variable">@oldItemId</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> [dbo].VersionedFields <span class="keyword">where</span> ItemId <span class="operator">=</span> <span class="variable">@oldItemId</span><span class="operator">*</span></span><br></pre></td></tr></table></figure></p>
+<br/>
+
+<p>   Since Sitecore has number of caching layers, to have the relevant data in the Content Editor, I recommend stopping the Sitecore instance when performing the SQL operation.<br>5. Start Sitecore instance and check that the created goals have correct IDs now (if you do not stop the process during running the scripts, you may get old IDs since they will be taken from cache).<br>6. Deploy the goals.<br>7. Check if the exceptions disappeared from the log files for the recreated goal ids.</p>
+<br/>
+
 <p>The approach was checked for 8.2.7, should work for 9.x in the same way. The same behavior may be experienced for other marketing definitions (like campaigns). The approach is the same, the only difference is the definition item which needs to be created on the 2nd step.</p>
-<p><br></p>
+<br/>
+
 <p>P.S. When completing this article, I though about using ItemManager to create the item with corresponding ID. Did not check it, though I believe it should work as well.</p>
-<p><br></p>
+<br/>
+
 <p>P.P.S Do not remove the marketing definitions once created!</p>
 
         
@@ -187,7 +192,7 @@ body{ -webkit-animation: bugfix infinite 1s; }
     
 
     
-      <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+      <a target="_blank" rel="noopener" href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
         <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
     
   
@@ -226,8 +231,8 @@ body{ -webkit-animation: bugfix infinite 1s; }
 
   
   <div id="disqus_thread"></div>
-  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a target="_blank" rel="noopener" href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
   
 </section>
 
@@ -247,6 +252,14 @@ body{ -webkit-animation: bugfix infinite 1s; }
   <ul class="entry">
     
       <li>
+        <a href="/2021/11/09/PublicLinkAPI/">Creating and updating public links via REST API in Sitecore Content Hub</a>
+      </li>
+    
+      <li>
+        <a href="/2021/11/09/UsingForeachWindbg/">Using .foreach in windbg to find array entities sizes</a>
+      </li>
+    
+      <li>
         <a href="/2019/09/07/SOLRQueryReplaying/">How to get the SOLR query generated by xConnect search and replay it</a>
       </li>
     
@@ -256,10 +269,6 @@ body{ -webkit-animation: bugfix infinite 1s; }
     
       <li>
         <a href="/2019/08/04/MissingDefinitionItems/">How to address &#34;Definition not found&#34; issue during aggregation</a>
-      </li>
-    
-      <li>
-        <a href="/2019/07/22/MarketingAutomationLogging/">How to inject logging to Marketing Automation condition</a>
       </li>
     
   </ul>
@@ -272,13 +281,17 @@ body{ -webkit-animation: bugfix infinite 1s; }
 <div class="widget tag">
   <h3 class="title">Tags</h3>
   
+    <a href="/tags/Content-Hub/">Content Hub<small>1</small></a>
+  
     <a href="/tags/Experience-Analytics/">Experience Analytics<small>1</small></a>
   
     <a href="/tags/Marketing-Automation/">Marketing Automation<small>1</small></a>
   
     <a href="/tags/SOLR/">SOLR<small>1</small></a>
   
-    <a href="/tags/Sitecore/">Sitecore<small>4</small></a>
+    <a href="/tags/Sitecore/">Sitecore<small>5</small></a>
+  
+    <a href="/tags/WinDbg/">WinDbg<small>1</small></a>
   
     <a href="/tags/xConnect/">xConnect<small>1</small></a>
   
@@ -295,7 +308,7 @@ body{ -webkit-animation: bugfix infinite 1s; }
   <footer id="footer" class="inner"><div class="padding">
 	<div class="alignleft">
 	  
-	  &copy; 2019 Sergey Plashenko
+	  &copy; 2021 Sergey Plashenko
 	  
 	  <p>Powerd by <a href="http://hexo.io/" target="_blank">hexo</a>
 	  and theme is modified <a href="https://github.com/halfer53/metro-light" target="_blank">metro-light</a></p>

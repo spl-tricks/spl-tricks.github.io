@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>How to inject logging to Marketing Automation condition | SPL Advanced Tricks</title>
+  <title>Using .foreach in windbg to find array entities sizes | SPL Advanced Tricks</title>
   <meta name="author" content="Sergey Plashenko">
   
   <meta name="description" content="Personal blog about my findings and investigations in Sitecore and not only.">
@@ -13,7 +13,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="How to inject logging to Marketing Automation condition"/>
+  <meta property="og:title" content="Using .foreach in windbg to find array entities sizes"/>
   <meta property="og:site_name" content="SPL Advanced Tricks"/>
 
   
@@ -90,11 +90,11 @@ body{ -webkit-animation: bugfix infinite 1s; }
     <div class="inner">
       <div class="padding">
         
-          <h1>How to inject logging to Marketing Automation condition</h1>
+          <h1>Using .foreach in windbg to find array entities sizes</h1>
           <ul>
             <li>
               <span class="heading-span">Posted on: </span>
-              <time datetime="2019-07-22T20:31:00.000Z">2019-07-22</time>
+              <time datetime="2021-11-09T20:03:00.000Z">2021-11-09</time>
             </li>
             
               <li>
@@ -127,30 +127,34 @@ body{ -webkit-animation: bugfix infinite 1s; }
       
       <div class="entry">
         
-          <p>The best way to understand why something does not work is debugging it. Unfortunately, it is not always possible to attach VS or windbg to a running process. In such cases, I usually extend the code with logging and check the output. </p>
-<br/>
+          <p>There is an array of objects and the goal is to find the biggest ones.</p>
+<p>DumpArray outputs the record addresses which we may use:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0:014&gt; !DumpArray /d 000001d837b4d860</span><br><span class="line">Name:        Sitecore.Xdb.Collection.Model.ContactDataRecord[]</span><br><span class="line">MethodTable: 00007ffb94f03888</span><br><span class="line">EEClass:     00007ffbf15d56b0</span><br><span class="line">Size:        83312(0x14570) bytes</span><br><span class="line">Array:       Rank 1, Number of elements 10411, Type CLASS</span><br><span class="line">Element Methodtable: 00007ffb948360f0</span><br><span class="line">[0] 000001d8537b06c0</span><br><span class="line">[1] 000001d8537c9e38</span><br><span class="line">[2] 000001d8537ca220</span><br><span class="line">[3] 000001d8537cddd8</span><br><span class="line">[4] 000001d8537ce060</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 
-<p>Some time ago I had issues with non-working Marketing Automation condition. This was custom condition and I had code for it. After some time monitoring the MA pool without success, I decided to inject logging into the condition Evaluate method to troubleshoot it. The conditions are processed by maengine service, thus usual Sitecore Log.Info() call won’t work here since there is no Sitecore.Kernel assembly reference.  Using DI and passing the ILogger via condition constructor won’t work either since the conditions are created using Activator and require parameter-less constructor.  </p>
-<br/>
+<p>To iterate the addresses, .foreach command can be used: <a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/-foreach">https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/-foreach</a></p>
+<p>Let’s first write the command which will foreach the !DumpArray command output:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0:014&gt; .foreach (record &#123; !DumpArray /d 000001d837b4d860 &#125;) &#123; .echo $&#123;record&#125; &#125;</span><br><span class="line">Name:</span><br><span class="line">Sitecore.Xdb.Collection.Model.ContactDataRecord[]</span><br><span class="line">MethodTable:</span><br><span class="line">00007ffb94f03888</span><br><span class="line">EEClass:</span><br><span class="line">00007ffbf15d56b0</span><br><span class="line">Size:</span><br><span class="line">83312(0x14570)</span><br><span class="line">bytes</span><br><span class="line">Array:</span><br><span class="line">Rank</span><br><span class="line">1,</span><br><span class="line">Number</span><br><span class="line">of</span><br><span class="line">elements</span><br><span class="line">10411,</span><br><span class="line">Type</span><br><span class="line">CLASS</span><br><span class="line">Element</span><br><span class="line">Methodtable:</span><br><span class="line">00007ffb948360f0</span><br><span class="line">[0]</span><br><span class="line">000001d8537b06c0</span><br><span class="line">[1]</span><br><span class="line">000001d8537c9e38</span><br><span class="line">[2]</span><br><span class="line">000001d8537ca220</span><br><span class="line">[3]</span><br><span class="line">000001d8537cddd8</span><br><span class="line">[4]</span><br><span class="line">000001d8537ce060</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 
-<p>MA has quite elegant extension points, which allow us to get the ILogger from condition. The Evaluate method gets IRuleExecutionContext as a parameter, the interface has only one method Fact which is used for getting contact, interaction and other required information. We will use it to get the needed ILogger implementation. I will use test FirstNameCondition further to demonstrate the behavior.  </p>
-<br/>
+<p>In detail, the script does the following:</p>
+<ol>
+<li>Parses the output of the command. The resulting output is an array of strings. <strong>record</strong> is the variable name of the array element. </li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">(record &#123; !DumpArray /d 000001d837b4d860 &#125;)</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight cs"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> Serilog;</span><br><span class="line"><span class="keyword">using</span> Sitecore.Framework.Rules;</span><br><span class="line"><span class="keyword">using</span> Sitecore.XConnect;</span><br><span class="line"><span class="keyword">using</span> Sitecore.XConnect.Collection.Model;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">TestCondition</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">FirstNameCondition</span> : <span class="title">ICondition</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="built_in">bool</span> <span class="title">Evaluate</span>(<span class="params">IRuleExecutionContext context</span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> logger = context.Fact&lt;ILogger&gt;();</span><br><span class="line">            logger.Information(<span class="string">&quot;Condition was executed&quot;</span>);</span><br><span class="line">            <span class="keyword">var</span> contact = context.Fact&lt;Contact&gt;();</span><br><span class="line">            <span class="keyword">return</span> contact.Personal()?.FirstName == <span class="string">&quot;Sergey&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>Executes command for each element in the array. <strong>${record}</strong> can be used to reference the variable value:</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123; .echo $&#123;record&#125; &#125;</span><br></pre></td></tr></table></figure>
 
-<br/>
+<p>Now our goal is to remove unnecessary lines. It can be done using <strong>/pS</strong> and  <strong>/ps</strong> parameters. </p>
+<p><strong>/pS</strong> skips first n records of the array. In our case, we don’t need lines which go before [0] inclusive. There are 22 such records. Parameters use hexadeximal format, so instead of 22 we need to use 16 (0x16).</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0:014&gt; .foreach /pS 16 (record &#123; !DumpArray /d 000001d837b4d860 &#125;) &#123; .echo $&#123;record&#125; &#125;</span><br><span class="line">000001d8537b06c0</span><br><span class="line">[1]</span><br><span class="line">000001d8537c9e38</span><br><span class="line">[2]</span><br><span class="line">000001d8537ca220</span><br><span class="line">[3]</span><br><span class="line">000001d8537cddd8</span><br><span class="line">[4]</span><br><span class="line">000001d8537ce060</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 
-<p>By default, the ILogger object is not present in context and we need to register it. It can be done by overriding the PopulateScopedFacts method of the ConditionEvaluationService.  </p>
-<figure class="highlight cs"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ConditionEvaluationService</span> : <span class="title">Sitecore.Xdb.MarketingAutomation.Rules.ConditionEvaluationService</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> ILogger&lt;Sitecore.Xdb.MarketingAutomation.Rules.ConditionEvaluationService&gt; _logger;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ConditionEvaluationService</span>(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="function">        ILogger&lt;Sitecore.Xdb.MarketingAutomation.Rules.ConditionEvaluationService&gt; logger,</span></span></span><br><span class="line"><span class="params"><span class="function">        IConditionSerializer serializer, IServiceProvider serviceProvider</span>) : <span class="title">base</span>(<span class="params">logger, serializer,</span></span></span><br><span class="line"><span class="params"><span class="function">        serviceProvider</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _logger = logger;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ConditionEvaluationService</span>(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="function">        ILogger&lt;Sitecore.Xdb.MarketingAutomation.Rules.ConditionEvaluationService&gt; logger,</span></span></span><br><span class="line"><span class="params"><span class="function">        IConditionSerializer serializer, IConditionCache cache, IServiceProvider serviceProvider</span>) : <span class="title">base</span>(<span class="params">logger,</span></span></span><br><span class="line"><span class="params"><span class="function">        serializer, cache, serviceProvider</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _logger = logger;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">PopulateScopedFacts</span>(<span class="params">FactSpecificier facts, IContactProcessingContext processingContext,</span></span></span><br><span class="line"><span class="params"><span class="function">        IConditionServices conditionServices, ISegmentationServiceContext segmentationServiceContext</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">base</span>.PopulateScopedFacts(facts, processingContext, conditionServices, segmentationServiceContext);</span><br><span class="line">        facts.Fact&lt;ILogger&gt;(_logger);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<br/>
+<p>Looks better, but we still have [n] values. Using <strong>/ps</strong> parameter, it is possible to take every n-th element in the array. In our case we want to take odd lines. Using 1 for /ps we get only addresses. </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0:014&gt; .foreach /pS 16 /ps 1 (record &#123; !DumpArray /d 000001d837b4d860 &#125;) &#123; .echo $&#123;record&#125; &#125;</span><br><span class="line">000001d8537b06c0</span><br><span class="line">000001d8537c9e38</span><br><span class="line">000001d8537ca220</span><br><span class="line">000001d8537cddd8</span><br><span class="line">000001d8537ce060</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 
-<p>The corresponding service must be replaced by a custom one in the following file:  </p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">App_data\jobs\continuous\AutomationEngine\App_Data\Config\sitecore\MarketingAutomation\sc.MarketingAutomation.ConditionEvaluationService.xml</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">MarketingAutomation.Rules.ConditionEvaluationService</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">Type</span>&gt;</span>CustomNamespace.ConditionEvaluationService, CustomAssembly<span class="tag">&lt;/<span class="name">Type</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">As</span>&gt;</span>Sitecore.Xdb.MarketingAutomation.Core.Rules.IConditionEvaluationService, Sitecore.Xdb.MarketingAutomation.Core<span class="tag">&lt;/<span class="name">As</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">LifeTime</span>&gt;</span>Singleton<span class="tag">&lt;/<span class="name">LifeTime</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">MarketingAutomation.Rules.ConditionEvaluationService</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-
+<p>And finally, let’s change the .echo command to <strong>!objsize</strong> to get the size of each record</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0:014&gt; .foreach /pS 16 /ps 1 (record &#123; !DumpArray /d 000001d837b4d860 &#125;) &#123; !objsize $&#123;record&#125; &#125;</span><br><span class="line">sizeof(000001d8537b06c0) = 256288 (0x3e920) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537c9e38) = 163792 (0x27fd0) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537ca220) = 329792 (0x50840) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537cddd8) = 90336 (0x160e0) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537ce060) = 330552 (0x50b38) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537d0040) = 152928 (0x25560) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br></pre></td></tr></table></figure>
         
       </div>
       <footer>
@@ -159,7 +163,7 @@ body{ -webkit-animation: bugfix infinite 1s; }
           
   
   <div class="tags">
-    <a href="/tags/xDB/">xDB</a>, <a href="/tags/Sitecore/">Sitecore</a>, <a href="/tags/Marketing-Automation/">Marketing Automation</a>, <a href="/tags/xConnect/">xConnect</a>
+    <a href="/tags/Sitecore/">Sitecore</a>, <a href="/tags/WinDbg/">WinDbg</a>
   </div>
 
           <div class="share">
@@ -181,13 +185,21 @@ body{ -webkit-animation: bugfix infinite 1s; }
 <nav class="article-nav clearfix">
  
  <div class="article-prev" >
- <a href="/2019/08/04/MissingDefinitionItems/" title="How to address &#34;Definition not found&#34; issue during aggregation">
+ <a href="/2021/11/09/PublicLinkAPI/" title="Creating and updating public links via REST API in Sitecore Content Hub">
   <i class="fa fa-long-arrow-left"></i>
   <span>
-  How to address &#34;Definition not found&#34; issue during aggregation</span>
+  Creating and updating public links via REST API in Sitecore Content Hub</span>
 </a>
 </div>
 
+
+<div class="article-next">
+<a href="/2019/09/07/SOLRQueryReplaying/"  title="How to get the SOLR query generated by xConnect search and replay it">
+ <span>How to get the SOLR query generated by xConnect search and replay it
+</span>
+<i class="fa fa-long-arrow-right"></i>
+</a>
+</div>
 
 </nav>
 

@@ -2,7 +2,7 @@
 
 <html lang="en">
   
-<head><meta name="generator" content="Hexo 3.9.0">
+<head>
   <meta charset="utf-8">
   
   <title>How Experience Analytics Reduce functionality works | SPL Advanced Tricks</title>
@@ -13,15 +13,15 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="How Experience Analytics Reduce functionality works">
-  <meta property="og:site_name" content="SPL Advanced Tricks">
+  <meta property="og:title" content="How Experience Analytics Reduce functionality works"/>
+  <meta property="og:site_name" content="SPL Advanced Tricks"/>
 
   
-    <meta property="og:image" content>
+    <meta property="og:image" content=""/>
   
 
   
-    <meta http-equiv="Content-Language" content="en">
+    <meta http-equiv="Content-Language" content="en"/>
   
 
   <link href="/img/favicon.png" rel="icon">
@@ -63,8 +63,8 @@ body{ -webkit-animation: bugfix infinite 1s; }
 
 
   
-<link rel="stylesheet" href="/css/prism-vs.css" type="text/css"></head>
-</html>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
 
 <body>
   <header id="header" class="inner"><div class="padding">
@@ -127,43 +127,52 @@ body{ -webkit-animation: bugfix infinite 1s; }
       
       <div class="entry">
         
-          <p>During the five years working with Experience Analytics, I have never had a chance to deep dive into segment reducing functionality.<br>Several days ago, the time has finally came and I had to find out how it works. I decided to describe it in detail, possibly somebody will find this interesting.<br><br>I used 8.2.7 version for demonstration, though the functionality should be pretty much the same in previous versions and revisions of 8.x.</p>
+          <p>During the five years working with Experience Analytics, I have never had a chance to deep dive into segment reducing functionality.<br>Several days ago, the time has finally came and I had to find out how it works. I decided to describe it in detail, possibly somebody will find this interesting.<br/><br>I used 8.2.7 version for demonstration, though the functionality should be pretty much the same in previous versions and revisions of 8.x.</p>
 <h2 id="Demo-Data"><a href="#Demo-Data" class="headerlink" title="Demo Data"></a>Demo Data</h2><p>I created a small example to demonstrate the reduce manager work.<br>There is <em>Campaign Group 1</em> campaign group, which has 3 campaigns with the following names:<br><em>Campaign1</em><br><em>Campaign2</em><br><em>Campaign3</em></p>
 <p>The report for the <em>Campaign Group 1</em> group looks as follows:</p>
-<p><img src="/images/HowEAReduceFunctionalityWorks/SeparateNumbers.png" alt></p>
+<p><img src="/images/HowEAReduceFunctionalityWorks/SeparateNumbers.png"></p>
 <p>Experience Analytics uses 5 tables to retrieve the data in Sitecore 8.2: <em>SegmentRecords</em>, <em>Fact_SegmentMetrics</em>, <em>SegmentRecordsReduced</em>, <em>Fact_SegmentMetricsReduced</em>, <em>DimensionKeys</em>.<br>Here is approximate query which can help to understand the exact way of how records are stored (we consider that the reducer has not been executed yet):</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="built_in">Date</span>, Visits, <span class="keyword">Value</span>, DimensionKey</span><br><span class="line"><span class="keyword">FROM</span> [SegmentRecords] <span class="keyword">JOIN</span> [Fact_SegmentMetrics] </span><br><span class="line"><span class="keyword">ON</span> [SegmentRecords].SegmentRecordId = [Fact_SegmentMetrics].SegmentRecordId</span><br><span class="line"><span class="keyword">JOIN</span> [DimensionKeys] <span class="keyword">ON</span> [SegmentRecords].DimensionKeyId = [DimensionKeys].DimensionKeyId</span><br><span class="line"><span class="keyword">WHERE</span> SegmentId = <span class="string">'7A9A483F-195D-4F96-AD88-473CD6854C4F'</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="type">Date</span>, Visits, <span class="keyword">Value</span>, DimensionKey</span><br><span class="line"><span class="keyword">FROM</span> [SegmentRecords] <span class="keyword">JOIN</span> [Fact_SegmentMetrics] </span><br><span class="line"><span class="keyword">ON</span> [SegmentRecords].SegmentRecordId <span class="operator">=</span> [Fact_SegmentMetrics].SegmentRecordId</span><br><span class="line"><span class="keyword">JOIN</span> [DimensionKeys] <span class="keyword">ON</span> [SegmentRecords].DimensionKeyId <span class="operator">=</span> [DimensionKeys].DimensionKeyId</span><br><span class="line"><span class="keyword">WHERE</span> SegmentId <span class="operator">=</span> <span class="string">&#x27;7A9A483F-195D-4F96-AD88-473CD6854C4F&#x27;</span></span><br></pre></td></tr></table></figure>
+
 <p>The <em>SegmentRecordsReduced</em>, <em>Fact_SegmentMetricsReduced</em> tables are not used for now, since they are populated when reducing is performed.<br>The query gives the following results:</p>
-<p><img src="/images/HowEAReduceFunctionalityWorks/NonReducedResults.png" alt></p>
+<p><img src="/images/HowEAReduceFunctionalityWorks/NonReducedResults.png"></p>
 <p>The first ID in the DimensionKey is the campaign group id. The second id is the id of the campaign. Thus, we have the same results as in the report:<br><em>156e78f3-f4ea-43d1-8607-07c38ccc53a9 - 13 times<br>4ba98edb-b73c-4951-a5bc-6f4210651a3a - 2 times<br>f4701287-86e2-4534-8358-5701cdb5c7ee - 1 time.</em></p>
 <h2 id="Reduce-functionality"><a href="#Reduce-functionality" class="headerlink" title="Reduce functionality"></a>Reduce functionality</h2><p>Reducer compresses the data which is considered insignificant by the system. It allows having less records in the database, which makes the query execution fast even for the big databases.</p>
 <p>All reducing related configuration can be found in the following file:</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">App_Config\Include\ExperienceAnalytics\Sitecore.ExperienceAnalytics.Reduce.config</span><br></pre></td></tr></table></figure>
-<p>There is a <em>reduceLoader</em> hook, which makes ReduceAgent to be executed every 30 seconds.<br><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">agent</span> <span class="attr">type</span>=<span class="string">"Sitecore.ExperienceAnalytics.Reduce.ReduceAgent, Sitecore.ExperienceAnalytics.Reduce"</span> &gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param</span> <span class="attr">desc</span>=<span class="string">"connectionStringName"</span>&gt;</span>reporting<span class="tag">&lt;/<span class="name">param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param</span> <span class="attr">desc</span>=<span class="string">"triggerHour"</span>&gt;</span>1<span class="tag">&lt;/<span class="name">param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param</span> <span class="attr">desc</span>=<span class="string">"logger"</span> <span class="attr">ref</span>=<span class="string">"experienceAnalytics/reduce/logger"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param</span> <span class="attr">ref</span>=<span class="string">"experienceAnalytics/reduce/manager"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">agent</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
-<p>Interesting parameter here is the <em>triggerHour</em>, which defines that the ReduceAgent can do it work only at this particular hour, which is 1AM by default. If the agent wakes up at other hour, it will just do nothing.<br>Apart from that, the reduce agent can do its work only once in 24 hours. The value of the last execution is stored in the properties table of the reporting database:<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> [Properties]</span><br><span class="line"><span class="keyword">WHERE</span> [<span class="keyword">Key</span>] = <span class="string">'EA_reduce_lastrun'</span></span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">App_Config\Include\ExperienceAnalytics\Sitecore.ExperienceAnalytics.Reduce.config</span><br></pre></td></tr></table></figure>
+<p>There is a <em>reduceLoader</em> hook, which makes ReduceAgent to be executed every 30 seconds.</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">agent</span> <span class="attr">type</span>=<span class="string">&quot;Sitecore.ExperienceAnalytics.Reduce.ReduceAgent, Sitecore.ExperienceAnalytics.Reduce&quot;</span> &gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param</span> <span class="attr">desc</span>=<span class="string">&quot;connectionStringName&quot;</span>&gt;</span>reporting<span class="tag">&lt;/<span class="name">param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param</span> <span class="attr">desc</span>=<span class="string">&quot;triggerHour&quot;</span>&gt;</span>1<span class="tag">&lt;/<span class="name">param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param</span> <span class="attr">desc</span>=<span class="string">&quot;logger&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;experienceAnalytics/reduce/logger&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param</span> <span class="attr">ref</span>=<span class="string">&quot;experienceAnalytics/reduce/manager&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">agent</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>Interesting parameter here is the <em>triggerHour</em>, which defines that the ReduceAgent can do it work only at this particular hour, which is 1AM by default. If the agent wakes up at other hour, it will just do nothing.<br>Apart from that, the reduce agent can do its work only once in 24 hours. The value of the last execution is stored in the properties table of the reporting database:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> [Properties]</span><br><span class="line"><span class="keyword">WHERE</span> [Key] <span class="operator">=</span> <span class="string">&#x27;EA_reduce_lastrun&#x27;</span></span><br></pre></td></tr></table></figure>
 <p>The agent delegates the execution to ReduceManager:</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">manager</span> <span class="attr">type</span>=<span class="string">"Sitecore.ExperienceAnalytics.Reduce.ReduceManager, Sitecore.ExperienceAnalytics.Reduce"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param</span> <span class="attr">desc</span>=<span class="string">"connectionStringName"</span>&gt;</span>reporting<span class="tag">&lt;/<span class="name">param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param</span> <span class="attr">desc</span>=<span class="string">"retentionDays"</span>&gt;</span>7<span class="tag">&lt;/<span class="name">param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param</span> <span class="attr">desc</span>=<span class="string">"logger"</span> <span class="attr">ref</span>=<span class="string">"experienceAnalytics/reduce/logger"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">manager</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">manager</span> <span class="attr">type</span>=<span class="string">&quot;Sitecore.ExperienceAnalytics.Reduce.ReduceManager, Sitecore.ExperienceAnalytics.Reduce&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param</span> <span class="attr">desc</span>=<span class="string">&quot;connectionStringName&quot;</span>&gt;</span>reporting<span class="tag">&lt;/<span class="name">param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param</span> <span class="attr">desc</span>=<span class="string">&quot;retentionDays&quot;</span>&gt;</span>7<span class="tag">&lt;/<span class="name">param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">param</span> <span class="attr">desc</span>=<span class="string">&quot;logger&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;experienceAnalytics/reduce/logger&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">manager</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>The <em>retentionDays</em> parameter defines how many days the aggregated data remains untouched by reduce manager. </p>
-<p>ReduceManager has specific time for which it is allowed to run. By default, it is 1 hour and can be configured using the following setting:<br><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">setting</span> <span class="attr">name</span>=<span class="string">"ExperienceAnalytics.Reduce.Timeout"</span> <span class="attr">value</span>=<span class="string">"01:00:00"</span> /&gt;</span></span><br></pre></td></tr></table></figure></p>
-<p>If the execution time is exceeded, the operation is aborted.<br><br></p>
+<p>ReduceManager has specific time for which it is allowed to run. By default, it is 1 hour and can be configured using the following setting:</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">setting</span> <span class="attr">name</span>=<span class="string">&quot;ExperienceAnalytics.Reduce.Timeout&quot;</span> <span class="attr">value</span>=<span class="string">&quot;01:00:00&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<p>If the execution time is exceeded, the operation is aborted.<br><br/></p>
 <p>Reduce manager is executed for each site from the <em>SiteNames</em> table of the reporting database and for each segment. There are several checkups in the code which may prevent segment reducing. Mostly, this can happen if re-aggregation is in process or if there is no data for the particular segment which is older than 7 days. Corresponding messages are written to a log file with Info level.</p>
-<p>The main  reducing logic is performed by the <em>ReduceSegmentMetrics</em> stored procedure. First of all, the data for further reducing is retrieved. It is done using the query like follows:<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> ROW_NUMBER() <span class="keyword">OVER</span>(<span class="keyword">ORDER</span> <span class="keyword">BY</span> sm.Visits <span class="keyword">DESC</span>, <span class="keyword">ABS</span>(sm.Value) <span class="keyword">DESC</span>) <span class="keyword">AS</span> <span class="string">'PredicateOrder'</span>,</span><br><span class="line">sr.[SegmentId],</span><br><span class="line">sr.[<span class="built_in">Date</span>],</span><br><span class="line">sr.[SiteNameId],</span><br><span class="line">sr.[DimensionKeyId],</span><br><span class="line">sm.[SegmentRecordId],</span><br><span class="line">sm.[ContactTransitionType],</span><br><span class="line">sm.[Visits],</span><br><span class="line">sm.[<span class="keyword">Value</span>],</span><br><span class="line">sm.[Bounces],</span><br><span class="line">sm.[Conversions],</span><br><span class="line">sm.[TimeOnSite],</span><br><span class="line">sm.[Pageviews],</span><br><span class="line">sm.[<span class="keyword">Count</span>]</span><br><span class="line"><span class="keyword">FROM</span> SegmentRecords sr</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> Fact_SegmentMetrics sm <span class="keyword">ON</span> sr.SegmentRecordId = sm.SegmentRecordId</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> DimensionKeys dk <span class="keyword">ON</span> dk.DimensionKeyId = sr.DimensionKeyId</span><br><span class="line"><span class="keyword">WHERE</span> sr.SegmentId = <span class="string">'7A9A483F-195D-4F96-AD88-473CD6854C4F'</span> <span class="keyword">AND</span> sr.[<span class="built_in">Date</span>] &gt;= <span class="string">'2019-08-16 00:00:00'</span> <span class="keyword">AND</span> </span><br><span class="line">sr.[<span class="built_in">Date</span>] &lt; <span class="string">'2019-08-17 00:00:00'</span></span><br></pre></td></tr></table></figure></p>
-<p>The resulting table in our case will be:<br><img src="/images/HowEAReduceFunctionalityWorks/ReducerSelectResult.png" alt><br>The records in the table are ordered by number of visits and engagement value and each row has <em>PredicateOrder</em> number assigned. If the number of records is too big, only first <em>n</em> records remain and the other ones are reduced. The <em>PredicateOrder</em> helps to understand which records to leave.<br>By default, only first 1000 records are significant ones and the rest is reduced. It can be controlled using the following setting:<br><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">setting</span> <span class="attr">name</span>=<span class="string">"ExperienceAnalytics.Reduce.DefaultKeepCountThreshold"</span> <span class="attr">value</span>=<span class="string">"1000"</span> /&gt;</span></span><br></pre></td></tr></table></figure></p>
-<p>In our case, this setting does not affect the behavior since there are only 4 records for the segment.<br>The resulting relation is filtered further using Visits and Value metrics. By default only records with Visits &gt; 10 are considered<br>significant. As for value, by default ABS(Value) must be &gt; -1 (which is always true) to be significant.<br>The corresponding default values can be changed in the configuration:<br><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">setting</span> <span class="attr">name</span>=<span class="string">"ExperienceAnalytics.Reduce.DefaultValueThreshold"</span> <span class="attr">value</span>=<span class="string">"-1"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">setting</span> <span class="attr">name</span>=<span class="string">"ExperienceAnalytics.Reduce.DefaultVisitThreshold"</span> <span class="attr">value</span>=<span class="string">"10"</span> /&gt;</span></span><br></pre></td></tr></table></figure></p>
-<p>The change will affect all segments.<br><br></p>
+<p>The main  reducing logic is performed by the <em>ReduceSegmentMetrics</em> stored procedure. First of all, the data for further reducing is retrieved. It is done using the query like follows:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="built_in">ROW_NUMBER</span>() <span class="keyword">OVER</span>(<span class="keyword">ORDER</span> <span class="keyword">BY</span> sm.Visits <span class="keyword">DESC</span>, <span class="built_in">ABS</span>(sm.Value) <span class="keyword">DESC</span>) <span class="keyword">AS</span> <span class="string">&#x27;PredicateOrder&#x27;</span>,</span><br><span class="line">sr.[SegmentId],</span><br><span class="line">sr.[<span class="type">Date</span>],</span><br><span class="line">sr.[SiteNameId],</span><br><span class="line">sr.[DimensionKeyId],</span><br><span class="line">sm.[SegmentRecordId],</span><br><span class="line">sm.[ContactTransitionType],</span><br><span class="line">sm.[Visits],</span><br><span class="line">sm.[<span class="keyword">Value</span>],</span><br><span class="line">sm.[Bounces],</span><br><span class="line">sm.[Conversions],</span><br><span class="line">sm.[TimeOnSite],</span><br><span class="line">sm.[Pageviews],</span><br><span class="line">sm.[Count]</span><br><span class="line"><span class="keyword">FROM</span> SegmentRecords sr</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> Fact_SegmentMetrics sm <span class="keyword">ON</span> sr.SegmentRecordId <span class="operator">=</span> sm.SegmentRecordId</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> DimensionKeys dk <span class="keyword">ON</span> dk.DimensionKeyId <span class="operator">=</span> sr.DimensionKeyId</span><br><span class="line"><span class="keyword">WHERE</span> sr.SegmentId <span class="operator">=</span> <span class="string">&#x27;7A9A483F-195D-4F96-AD88-473CD6854C4F&#x27;</span> <span class="keyword">AND</span> sr.[<span class="type">Date</span>] <span class="operator">&gt;=</span> <span class="string">&#x27;2019-08-16 00:00:00&#x27;</span> <span class="keyword">AND</span> </span><br><span class="line">sr.[<span class="type">Date</span>] <span class="operator">&lt;</span> <span class="string">&#x27;2019-08-17 00:00:00&#x27;</span> </span><br></pre></td></tr></table></figure>
+<p>The resulting table in our case will be:<br><img src="/images/HowEAReduceFunctionalityWorks/ReducerSelectResult.png"><br>The records in the table are ordered by number of visits and engagement value and each row has <em>PredicateOrder</em> number assigned. If the number of records is too big, only first <em>n</em> records remain and the other ones are reduced. The <em>PredicateOrder</em> helps to understand which records to leave.<br>By default, only first 1000 records are significant ones and the rest is reduced. It can be controlled using the following setting:</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">setting</span> <span class="attr">name</span>=<span class="string">&quot;ExperienceAnalytics.Reduce.DefaultKeepCountThreshold&quot;</span> <span class="attr">value</span>=<span class="string">&quot;1000&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<p>In our case, this setting does not affect the behavior since there are only 4 records for the segment.<br>The resulting relation is filtered further using Visits and Value metrics. By default only records with Visits &gt; 10 are considered<br>significant. As for value, by default ABS(Value) must be &gt; -1 (which is always true) to be significant.<br>The corresponding default values can be changed in the configuration:</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">setting</span> <span class="attr">name</span>=<span class="string">&quot;ExperienceAnalytics.Reduce.DefaultValueThreshold&quot;</span> <span class="attr">value</span>=<span class="string">&quot;-1&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">setting</span> <span class="attr">name</span>=<span class="string">&quot;ExperienceAnalytics.Reduce.DefaultVisitThreshold&quot;</span> <span class="attr">value</span>=<span class="string">&quot;10&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<p>The change will affect all segments.<br><br/></p>
 <p>Also each particular segment can be configured independently. To do that, the dimension which corresponds to a segment must be found first. It can be done as follows:</p>
 <ol>
 <li>Find the needed segment in the master database using Content Editor.</li>
 <li>The segment parent item is the needed dimension.</li>
 <li>Use the dimension id to find it in the <em>Sitecore.ExperienceAnalytics.Reduce.config</em> file. Using the <em>visitThreshold</em> and <em>valueThreshold</em> attributes it is possible to define the required thresholds. </li>
 </ol>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dimension</span> <span class="attr">id</span>=<span class="string">"&#123;3E01BA28-2B4D-408A-A4BA-6C51ED9FFB9C&#125;"</span> <span class="attr">type</span>=<span class="string">"Sitecore.ExperienceAnalytics.Aggregation.Dimensions.ByCampaign, Sitecore.ExperienceAnalytics.Aggregation"</span> <span class="attr">visitThreshold</span>=<span class="string">"1"</span> <span class="attr">valueThreshold</span>=<span class="string">"-1"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
-<p>In the configuration above, the records which have more that 1 visit and any value are considered as significant.<br><br><br>In my case (with default configuration) only the first record is significant. The rest of the records will be reduced. Value, Visits, Bounces, etc. will be summed up and only one reduced record with [Other] DimensionKey will be stored in <em>Fact_SegmentMetricsReduced</em> and <em>SegmentRecordsReduced</em> tables (note that initially <em>Fact_SegmentMetrics</em> and <em>SegmentRecords</em> tables). The reduced data will be purged from the <em>Fact_SegmentMetrics</em> and <em>SegmentRecords</em> tables after stored procedure work is finished.<br>Running the query against <em>Fact_SegmentMetrics</em> and <em>SegmentRecords</em> tables will return no results now. If the same query is executed against <em>Fact_SegmentMetricsReduced</em> and <em>SegmentRecordsReduced</em> tables, the result will be the following:</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="built_in">Date</span>, Visits, <span class="keyword">Value</span>, DimensionKey</span><br><span class="line"><span class="keyword">FROM</span> [SegmentRecordsReduced] <span class="keyword">JOIN</span> [Fact_SegmentMetricsReduced] </span><br><span class="line"><span class="keyword">ON</span> [SegmentRecordsReduced].SegmentRecordId = [Fact_SegmentMetricsReduced].SegmentRecordId</span><br><span class="line"><span class="keyword">JOIN</span> [DimensionKeys] <span class="keyword">ON</span> [SegmentRecordsReduced].DimensionKeyId = [DimensionKeys].DimensionKeyId</span><br><span class="line"><span class="keyword">WHERE</span> SegmentId = <span class="string">'7A9A483F-195D-4F96-AD88-473CD6854C4F'</span></span><br></pre></td></tr></table></figure>
-<p><br></p>
-<p><img src="/images/HowEAReduceFunctionalityWorks/ReducedResults.png" alt></p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dimension</span> <span class="attr">id</span>=<span class="string">&quot;&#123;3E01BA28-2B4D-408A-A4BA-6C51ED9FFB9C&#125;&quot;</span> <span class="attr">type</span>=<span class="string">&quot;Sitecore.ExperienceAnalytics.Aggregation.Dimensions.ByCampaign, Sitecore.ExperienceAnalytics.Aggregation&quot;</span> <span class="attr">visitThreshold</span>=<span class="string">&quot;1&quot;</span> <span class="attr">valueThreshold</span>=<span class="string">&quot;-1&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>In the configuration above, the records which have more that 1 visit and any value are considered as significant.<br><br/><br>In my case (with default configuration) only the first record is significant. The rest of the records will be reduced. Value, Visits, Bounces, etc. will be summed up and only one reduced record with [Other] DimensionKey will be stored in <em>Fact_SegmentMetricsReduced</em> and <em>SegmentRecordsReduced</em> tables (note that initially <em>Fact_SegmentMetrics</em> and <em>SegmentRecords</em> tables). The reduced data will be purged from the <em>Fact_SegmentMetrics</em> and <em>SegmentRecords</em> tables after stored procedure work is finished.<br>Running the query against <em>Fact_SegmentMetrics</em> and <em>SegmentRecords</em> tables will return no results now. If the same query is executed against <em>Fact_SegmentMetricsReduced</em> and <em>SegmentRecordsReduced</em> tables, the result will be the following:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="type">Date</span>, Visits, <span class="keyword">Value</span>, DimensionKey</span><br><span class="line"><span class="keyword">FROM</span> [SegmentRecordsReduced] <span class="keyword">JOIN</span> [Fact_SegmentMetricsReduced] </span><br><span class="line"><span class="keyword">ON</span> [SegmentRecordsReduced].SegmentRecordId <span class="operator">=</span> [Fact_SegmentMetricsReduced].SegmentRecordId</span><br><span class="line"><span class="keyword">JOIN</span> [DimensionKeys] <span class="keyword">ON</span> [SegmentRecordsReduced].DimensionKeyId <span class="operator">=</span> [DimensionKeys].DimensionKeyId</span><br><span class="line"><span class="keyword">WHERE</span> SegmentId <span class="operator">=</span> <span class="string">&#x27;7A9A483F-195D-4F96-AD88-473CD6854C4F&#x27;</span></span><br></pre></td></tr></table></figure>
+<br/>
+
+<p><img src="/images/HowEAReduceFunctionalityWorks/ReducedResults.png"></p>
 <p>As it can be seen, non-significant data is stored with <em>[Other]</em> dimension key, thus can’t be used for displaying particular campaigns in the reports. The report shows the following data after the reducer finished its work:</p>
-<p><img src="/images/HowEAReduceFunctionalityWorks/ReportAfterReducing.png" alt></p>
+<p><img src="/images/HowEAReduceFunctionalityWorks/ReportAfterReducing.png"></p>
 <h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>Considering the above, we now know that Experience Analytics reports may show less data after some time. Using the configuration settings this behavior can be adjusted to meet the requirements:</p>
 <ol>
 <li><em>retentionDays</em> value can be increased. In this case, the data will remain unchanged for longer time.</li>
@@ -171,7 +180,8 @@ body{ -webkit-animation: bugfix infinite 1s; }
 <li>Specific segments can be reconfigured using the <em>visitThreshold</em> and <em>valueThreshold</em> attributes as it was described above.</li>
 <li>It is also possible to comment out specific dimension under the <em>experienceAnalytics/reduce/dimensions</em> node, however it is not the way which EA treats as valid one. If the dimension is present under the <em>experienceAnalytics/aggregation/dimensions</em> node it should be present under the <em>experienceAnalytics/reduce/dimensions</em> node as well. Otherwise, the following error will appear in a log:</li>
 </ol>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ERROR [Experience Analytics]: Error trying to reduce segment: ea364d4d-b85c-4c07-88d1-51edcaa1a160, date: 8/16/2019, site: website</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ERROR [Experience Analytics]: Error trying to reduce segment: ea364d4d-b85c-4c07-88d1-51edcaa1a160, date: 8/16/2019, site: website</span><br></pre></td></tr></table></figure>
+
 <p>Though, the error is not critical and does not seem to break something.</p>
 
         
@@ -195,7 +205,7 @@ body{ -webkit-animation: bugfix infinite 1s; }
     
 
     
-      <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+      <a target="_blank" rel="noopener" href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
         <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
     
   
@@ -234,8 +244,8 @@ body{ -webkit-animation: bugfix infinite 1s; }
 
   
   <div id="disqus_thread"></div>
-  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a target="_blank" rel="noopener" href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
   
 </section>
 
@@ -255,6 +265,14 @@ body{ -webkit-animation: bugfix infinite 1s; }
   <ul class="entry">
     
       <li>
+        <a href="/2021/11/09/PublicLinkAPI/">Creating and updating public links via REST API in Sitecore Content Hub</a>
+      </li>
+    
+      <li>
+        <a href="/2021/11/09/UsingForeachWindbg/">Using .foreach in windbg to find array entities sizes</a>
+      </li>
+    
+      <li>
         <a href="/2019/09/07/SOLRQueryReplaying/">How to get the SOLR query generated by xConnect search and replay it</a>
       </li>
     
@@ -264,10 +282,6 @@ body{ -webkit-animation: bugfix infinite 1s; }
     
       <li>
         <a href="/2019/08/04/MissingDefinitionItems/">How to address &#34;Definition not found&#34; issue during aggregation</a>
-      </li>
-    
-      <li>
-        <a href="/2019/07/22/MarketingAutomationLogging/">How to inject logging to Marketing Automation condition</a>
       </li>
     
   </ul>
@@ -280,13 +294,17 @@ body{ -webkit-animation: bugfix infinite 1s; }
 <div class="widget tag">
   <h3 class="title">Tags</h3>
   
+    <a href="/tags/Content-Hub/">Content Hub<small>1</small></a>
+  
     <a href="/tags/Experience-Analytics/">Experience Analytics<small>1</small></a>
   
     <a href="/tags/Marketing-Automation/">Marketing Automation<small>1</small></a>
   
     <a href="/tags/SOLR/">SOLR<small>1</small></a>
   
-    <a href="/tags/Sitecore/">Sitecore<small>4</small></a>
+    <a href="/tags/Sitecore/">Sitecore<small>5</small></a>
+  
+    <a href="/tags/WinDbg/">WinDbg<small>1</small></a>
   
     <a href="/tags/xConnect/">xConnect<small>1</small></a>
   
@@ -303,7 +321,7 @@ body{ -webkit-animation: bugfix infinite 1s; }
   <footer id="footer" class="inner"><div class="padding">
 	<div class="alignleft">
 	  
-	  &copy; 2019 Sergey Plashenko
+	  &copy; 2021 Sergey Plashenko
 	  
 	  <p>Powerd by <a href="http://hexo.io/" target="_blank">hexo</a>
 	  and theme is modified <a href="https://github.com/halfer53/metro-light" target="_blank">metro-light</a></p>
