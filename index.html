@@ -111,6 +111,87 @@ body{ -webkit-animation: bugfix infinite 1s; }
           <!-- <div class="icon"></div> -->
             
     
+      <h1 class="metro-title transition"><a href="/2021/12/05/HowToCreateAssetUsingRESTAPI/">How to create an asset using REST API</a></h1>
+    
+  
+          <ul>
+            <li>
+              <span class="heading-span">Posted on: </span>
+              <time datetime="2021-12-05T19:37:00.000Z">2021-12-05</time>
+            </li>
+            
+              <li>
+                <span class="heading-span">By: </span>
+
+                
+                  <a href="/">Sergey Plashenko</a>
+                
+
+              </li>
+            
+            <li>
+              <!--span class="heading-span">With: </span-->
+              
+                <a href="/2021/12/05/HowToCreateAssetUsingRESTAPI/#disqus_thread">Comments</a>
+
+              
+          </ul>
+        </header>
+      
+      <div class="entry">
+        
+          
+            <p>The following article describes how Upload API V2 can be used:<br><a target="_blank" rel="noopener" href="https://docs.stylelabs.com/en-us/contenthub/4.0.x/content/integrations/rest-api/upload/upload-api-v2.html">https://docs.stylelabs.com/en-us/contenthub/4.0.x/content/integrations/rest-api/upload/upload-api-v2.html</a>.<br>&nbsp;<br>Let’s demonstate the usage of API using Powershell 7. Uploading flow consists of three steps:</p>
+<h2 id="Request-an-upload"><a href="#Request-an-upload" class="headerlink" title="Request an upload"></a>Request an upload</h2><p>First, an asset needs to be created. It can be done using the following code:</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$xAuthToken</span> = <span class="string">&quot;enter your auth token guid here&quot;</span></span><br><span class="line"><span class="variable">$hostName</span> = <span class="string">&quot;https://YourCHHostname&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$fileName</span> = <span class="string">&quot;Test.png&quot;</span></span><br><span class="line"><span class="variable">$filePath</span> = <span class="string">&quot;C:\TempDownloads\Test.png&quot;</span></span><br><span class="line"><span class="variable">$fileSize</span> = <span class="number">792</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># create request</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$createAssetBody</span> = <span class="selector-tag">@</span>&#123;</span><br><span class="line">    file_name = <span class="variable">$fileName</span></span><br><span class="line">    file_size = <span class="variable">$fileSize</span></span><br><span class="line">    upload_configuration = <span class="selector-tag">@</span>&#123;</span><br><span class="line">        name = <span class="string">&quot;AssetUploadConfiguration&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    action = <span class="selector-tag">@</span>&#123;</span><br><span class="line">        name = <span class="string">&quot;NewAsset&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125; | <span class="built_in">ConvertTo-Json</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$createUrl</span> = <span class="variable">$hostName</span> + <span class="string">&quot;/api/v2.0/upload&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$createResponse</span> = <span class="built_in">Invoke-WebRequest</span> <span class="literal">-Uri</span> <span class="variable">$createUrl</span> <span class="literal">-Method</span> <span class="string">&#x27;POST&#x27;</span> <span class="literal">-Body</span> <span class="variable">$createAssetBody</span> <span class="literal">-H</span> <span class="selector-tag">@</span>&#123;<span class="string">&quot;x-auth-token&quot;</span> = <span class="variable">$xAuthToken</span>; <span class="string">&quot;Content-Type&quot;</span> = <span class="string">&quot;application/json&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&nbsp;<br>In the response, we will get the following data:</p>
+<ol>
+<li>Response body has upload_identifier and file_identifier</li>
+</ol>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;upload_identifier&quot;</span>: <span class="string">&quot;uploadidentifier&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;file_identifier&quot;</span>: <span class="string">&quot;fileidentifier&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&nbsp;</p>
+<ol start="2">
+<li>Location response Header contains the URL where we need to upload the data. </li>
+</ol>
+<h2 id="Perform-the-upload"><a href="#Perform-the-upload" class="headerlink" title="Perform the upload"></a>Perform the upload</h2><p>For uploading the file, the approach described in this article is used: <a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest?view=powershell-7.2#example-5--submit-a-multipart-form-data-file">https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest?view=powershell-7.2#example-5--submit-a-multipart-form-data-file</a></p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># upload request</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$uploadUrl</span> = <span class="variable">$createResponse</span>.Headers.Location[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="variable">$fileStream</span> = [<span class="type">System.IO.FileStream</span>]::new(<span class="variable">$filePath</span>, [<span class="type">System.IO.FileMode</span>]::Open)</span><br><span class="line"><span class="variable">$fileHeader</span> = [<span class="type">System.Net.Http.Headers.ContentDispositionHeaderValue</span>]::new(<span class="string">&#x27;form-data&#x27;</span>)</span><br><span class="line"><span class="variable">$fileHeader</span>.Name = <span class="variable">$fileName</span></span><br><span class="line"><span class="variable">$fileHeader</span>.FileName = <span class="built_in">Split-Path</span> <span class="literal">-leaf</span> <span class="variable">$filePath</span></span><br><span class="line"><span class="variable">$fileContent</span> = [<span class="type">System.Net.Http.StreamContent</span>]::new(<span class="variable">$fileStream</span>)</span><br><span class="line"><span class="variable">$fileContent</span>.Headers.ContentDisposition = <span class="variable">$fileHeader</span></span><br><span class="line"><span class="variable">$fileContent</span>.Headers.ContentType = [<span class="type">System.Net.Http.Headers.MediaTypeHeaderValue</span>]::Parse(<span class="string">&quot;text/plain&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="variable">$multipartContent</span> = [<span class="type">System.Net.Http.MultipartFormDataContent</span>]::new()</span><br><span class="line"><span class="variable">$multipartContent</span>.Add(<span class="variable">$fileContent</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">Invoke-WebRequest</span> <span class="literal">-Body</span> <span class="variable">$multipartContent</span> <span class="literal">-Method</span> <span class="string">&#x27;POST&#x27;</span> <span class="literal">-Uri</span> <span class="variable">$uploadUrl</span> <span class="literal">-Headers</span> <span class="selector-tag">@</span>&#123;<span class="string">&quot;x-auth-token&quot;</span> = <span class="variable">$xAuthToken</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$fileStream</span>.Close()</span><br></pre></td></tr></table></figure>
+
+<h2 id="Finalize-the-upload"><a href="#Finalize-the-upload" class="headerlink" title="Finalize the upload"></a>Finalize the upload</h2><p>To finalize the request, we need to post the response body received on the “Request an upload” step:</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment">#finalize request</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$finalizeUrl</span> = <span class="variable">$hostName</span> + <span class="string">&quot;/api/v2.0/upload/finalize&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">Invoke-WebRequest</span> <span class="literal">-Uri</span> <span class="variable">$finalizeUrl</span> <span class="literal">-Method</span> <span class="string">&#x27;POST&#x27;</span> <span class="literal">-Body</span> <span class="variable">$createResponse</span>.Content <span class="literal">-H</span> <span class="selector-tag">@</span>&#123;<span class="string">&quot;x-auth-token&quot;</span> = <span class="variable">$xAuthToken</span>; <span class="string">&quot;Content-Type&quot;</span> = <span class="string">&quot;application/json&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Full-script"><a href="#Full-script" class="headerlink" title="Full script"></a>Full script</h2><figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$xAuthToken</span> = <span class="string">&quot;enter your auth token guid here&quot;</span></span><br><span class="line"><span class="variable">$hostName</span> = <span class="string">&quot;https://YourCHHostname&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$fileName</span> = <span class="string">&quot;Test.png&quot;</span></span><br><span class="line"><span class="variable">$filePath</span> = <span class="string">&quot;C:\TempDownloads\Test.png&quot;</span></span><br><span class="line"><span class="variable">$fileSize</span> = <span class="number">792</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># create request</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$createAssetBody</span> = <span class="selector-tag">@</span>&#123;</span><br><span class="line">    file_name = <span class="variable">$fileName</span></span><br><span class="line">    file_size = <span class="variable">$fileSize</span></span><br><span class="line">    upload_configuration = <span class="selector-tag">@</span>&#123;</span><br><span class="line">        name = <span class="string">&quot;AssetUploadConfiguration&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    action = <span class="selector-tag">@</span>&#123;</span><br><span class="line">        name = <span class="string">&quot;NewAsset&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125; | <span class="built_in">ConvertTo-Json</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$createUrl</span> = <span class="variable">$hostName</span> + <span class="string">&quot;/api/v2.0/upload&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$createResponse</span> = <span class="built_in">Invoke-WebRequest</span> <span class="literal">-Uri</span> <span class="variable">$createUrl</span> <span class="literal">-Method</span> <span class="string">&#x27;POST&#x27;</span> <span class="literal">-Body</span> <span class="variable">$createAssetBody</span> <span class="literal">-H</span> <span class="selector-tag">@</span>&#123;<span class="string">&quot;x-auth-token&quot;</span> = <span class="variable">$xAuthToken</span>; <span class="string">&quot;Content-Type&quot;</span> = <span class="string">&quot;application/json&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># upload request</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$uploadUrl</span> = <span class="variable">$createResponse</span>.Headers.Location[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="variable">$fileStream</span> = [<span class="type">System.IO.FileStream</span>]::new(<span class="variable">$filePath</span>, [<span class="type">System.IO.FileMode</span>]::Open)</span><br><span class="line"><span class="variable">$fileHeader</span> = [<span class="type">System.Net.Http.Headers.ContentDispositionHeaderValue</span>]::new(<span class="string">&#x27;form-data&#x27;</span>)</span><br><span class="line"><span class="variable">$fileHeader</span>.Name = <span class="variable">$fileName</span></span><br><span class="line"><span class="variable">$fileHeader</span>.FileName = <span class="built_in">Split-Path</span> <span class="literal">-leaf</span> <span class="variable">$filePath</span></span><br><span class="line"><span class="variable">$fileContent</span> = [<span class="type">System.Net.Http.StreamContent</span>]::new(<span class="variable">$fileStream</span>)</span><br><span class="line"><span class="variable">$fileContent</span>.Headers.ContentDisposition = <span class="variable">$fileHeader</span></span><br><span class="line"><span class="variable">$fileContent</span>.Headers.ContentType = [<span class="type">System.Net.Http.Headers.MediaTypeHeaderValue</span>]::Parse(<span class="string">&quot;text/plain&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="variable">$multipartContent</span> = [<span class="type">System.Net.Http.MultipartFormDataContent</span>]::new()</span><br><span class="line"><span class="variable">$multipartContent</span>.Add(<span class="variable">$fileContent</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">Invoke-WebRequest</span> <span class="literal">-Body</span> <span class="variable">$multipartContent</span> <span class="literal">-Method</span> <span class="string">&#x27;POST&#x27;</span> <span class="literal">-Uri</span> <span class="variable">$uploadUrl</span> <span class="literal">-Headers</span> <span class="selector-tag">@</span>&#123;<span class="string">&quot;x-auth-token&quot;</span> = <span class="variable">$xAuthToken</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$fileStream</span>.Close()</span><br><span class="line"></span><br><span class="line"><span class="comment">#finalize request</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$finalizeUrl</span> = <span class="variable">$hostName</span> + <span class="string">&quot;/api/v2.0/upload/finalize&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">Invoke-WebRequest</span> <span class="literal">-Uri</span> <span class="variable">$finalizeUrl</span> <span class="literal">-Method</span> <span class="string">&#x27;POST&#x27;</span> <span class="literal">-Body</span> <span class="variable">$createResponse</span>.Content <span class="literal">-H</span> <span class="selector-tag">@</span>&#123;<span class="string">&quot;x-auth-token&quot;</span> = <span class="variable">$xAuthToken</span>; <span class="string">&quot;Content-Type&quot;</span> = <span class="string">&quot;application/json&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      </div>
+      <footer>
+        
+          <div class="alignright">
+            <a href="/2021/12/05/HowToCreateAssetUsingRESTAPI/#more" class="more-link">Continue Reading<i class="fa fa-long-arrow-right fa-1"></i></a>
+          </div>
+        
+        <div class="clearfix"></div>
+      </footer>
+    </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  
+    <div class="post-content-index">
+  
+      
+        <header>
+          <!-- <div class="icon"></div> -->
+            
+    
       <h1 class="metro-title transition"><a href="/2021/11/09/PublicLinkAPI/">Creating and updating public links via REST API in Sitecore Content Hub</a></h1>
     
   
@@ -144,15 +225,12 @@ body{ -webkit-animation: bugfix infinite 1s; }
             <p>To create or update a public link you need to have X-Auth-Token header set for all requests which you send. It can be obtained as described here: <a target="_blank" rel="noopener" href="https://docs.stylelabs.com/contenthub/4.1.x/content/integrations/rest-api/authenticate/get-token.html">https://docs.stylelabs.com/contenthub/4.1.x/content/integrations/rest-api/authenticate/get-token.html</a></p>
 <h2 id="Create-a-public-link-for-an-asset"><a href="#Create-a-public-link-for-an-asset" class="headerlink" title="Create a public link for an asset"></a>Create a public link for an asset</h2><p>Send a <strong>POST</strong> request to <em>/api/entitydefinitions/M.PublicLink/entities</em> URL with the following body:</p>
 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	<span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">		<span class="attr">&quot;RelativeUrl&quot;</span>: <span class="string">&quot;067baf76e8eb4ef2a6ece6fe611013a0&quot;</span>,</span><br><span class="line">		<span class="attr">&quot;Resource&quot;</span>: <span class="string">&quot;downloadOriginal&quot;</span>,</span><br><span class="line">		<span class="attr">&quot;ExpirationDate&quot;</span>: <span class="string">&quot;2021-10-30T12:16:00.176Z&quot;</span>,</span><br><span class="line">		<span class="attr">&quot;ConversionConfiguration&quot;</span>: &#123;&#125;</span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">&quot;is_root_taxonomy_item&quot;</span>: <span class="literal">false</span>,</span><br><span class="line">	<span class="attr">&quot;is_path_root&quot;</span>: <span class="literal">false</span>,</span><br><span class="line">	<span class="attr">&quot;inherits_security&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">	<span class="attr">&quot;entitydefinition&quot;</span>: &#123;</span><br><span class="line">		<span class="attr">&quot;href&quot;</span>: <span class="string">&quot;https://YourCHHostnameGoesHere/api/entitydefinitions/M.PublicLink&quot;</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">&quot;relations&quot;</span>: &#123;</span><br><span class="line">		<span class="attr">&quot;AssetToPublicLink&quot;</span>: &#123;</span><br><span class="line">			<span class="attr">&quot;parents&quot;</span>: [</span><br><span class="line">				&#123;</span><br><span class="line">					<span class="attr">&quot;href&quot;</span>: <span class="string">&quot;https://YourCHHostnameGoesHere/api/entities/IDOFYOURASSET&quot;</span></span><br><span class="line">				&#125;</span><br><span class="line">			]</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>If the operation is successful, 201 response code must be received and the body must have id and identifier of the created entity.</p>
-<p>RelativeUrl must be a unique random guid.</p>
+<p>&nbsp;<br>If the operation is successful, 201 response code must be received and the body must have id and identifier of the created entity. RelativeUrl must be a unique random guid.</p>
 <h2 id="Wait-until-link-is-ready"><a href="#Wait-until-link-is-ready" class="headerlink" title="Wait until link is ready"></a>Wait until link is ready</h2><p>Send <strong>GET</strong> request to <em>/api/entities/<strong>PublicLinkEntityId</strong></em> and check the properties.Status value in the returned response. When it is <strong>Completed</strong>, the link is ready. </p>
 <h2 id="Update-existing-public-link"><a href="#Update-existing-public-link" class="headerlink" title="Update existing public link"></a>Update existing public link</h2><p>Send a <strong>PUT</strong> request to <em>api/entities/<strong>PublicLinkEntityId</strong></em> URL with the body which has modifications to the properties which needs to be updated. </p>
 <p>For example, changing the ExpirationDate can be done as follows:</p>
 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;ExpirationDate&quot;</span>: <span class="string">&quot;2021-11-30T12:16:00.176Z&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">&quot;entitydefinition&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;href&quot;</span>: <span class="string">&quot;https://YourCHHostnameGoesHere/api/entitydefinitions/M.PublicLink&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>entitydefinition property is mandatory and must be present in the request. </p>
+<p>&nbsp;<br>entitydefinition property is mandatory and must be present in the request. </p>
 
           
         
@@ -211,34 +289,24 @@ body{ -webkit-animation: bugfix infinite 1s; }
       <div class="entry">
         
           
-            <p>There is an array of objects and the goal is to find the biggest ones.</p>
-<p>DumpArray outputs the record addresses which we may use:</p>
+            <p>There is an array of objects and the goal is to find the biggest ones. DumpArray outputs the record addresses which we may use:</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0:014&gt; !DumpArray /d 000001d837b4d860</span><br><span class="line">Name:        Sitecore.Xdb.Collection.Model.ContactDataRecord[]</span><br><span class="line">MethodTable: 00007ffb94f03888</span><br><span class="line">EEClass:     00007ffbf15d56b0</span><br><span class="line">Size:        83312(0x14570) bytes</span><br><span class="line">Array:       Rank 1, Number of elements 10411, Type CLASS</span><br><span class="line">Element Methodtable: 00007ffb948360f0</span><br><span class="line">[0] 000001d8537b06c0</span><br><span class="line">[1] 000001d8537c9e38</span><br><span class="line">[2] 000001d8537ca220</span><br><span class="line">[3] 000001d8537cddd8</span><br><span class="line">[4] 000001d8537ce060</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-<p>To iterate the addresses, .foreach command can be used: <a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/-foreach">https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/-foreach</a></p>
-<p>Let’s first write the command which will foreach the !DumpArray command output:</p>
+<p>&nbsp;<br>To iterate the addresses, .foreach command can be used:<br><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/-foreach">https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/-foreach</a><br>&nbsp;<br>Let’s first write the command which will foreach the !DumpArray command output:</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0:014&gt; .foreach (record &#123; !DumpArray /d 000001d837b4d860 &#125;) &#123; .echo $&#123;record&#125; &#125;</span><br><span class="line">Name:</span><br><span class="line">Sitecore.Xdb.Collection.Model.ContactDataRecord[]</span><br><span class="line">MethodTable:</span><br><span class="line">00007ffb94f03888</span><br><span class="line">EEClass:</span><br><span class="line">00007ffbf15d56b0</span><br><span class="line">Size:</span><br><span class="line">83312(0x14570)</span><br><span class="line">bytes</span><br><span class="line">Array:</span><br><span class="line">Rank</span><br><span class="line">1,</span><br><span class="line">Number</span><br><span class="line">of</span><br><span class="line">elements</span><br><span class="line">10411,</span><br><span class="line">Type</span><br><span class="line">CLASS</span><br><span class="line">Element</span><br><span class="line">Methodtable:</span><br><span class="line">00007ffb948360f0</span><br><span class="line">[0]</span><br><span class="line">000001d8537b06c0</span><br><span class="line">[1]</span><br><span class="line">000001d8537c9e38</span><br><span class="line">[2]</span><br><span class="line">000001d8537ca220</span><br><span class="line">[3]</span><br><span class="line">000001d8537cddd8</span><br><span class="line">[4]</span><br><span class="line">000001d8537ce060</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-<p>In detail, the script does the following:</p>
+<p>&nbsp;<br>In detail, the script does the following:</p>
 <ol>
 <li>Parses the output of the command. The resulting output is an array of strings. <strong>record</strong> is the variable name of the array element. </li>
 </ol>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">(record &#123; !DumpArray /d 000001d837b4d860 &#125;)</span><br></pre></td></tr></table></figure>
-
-<ol start="2">
-<li>Executes command for each element in the array. <strong>${record}</strong> can be used to reference the variable value:</li>
-</ol>
+<p>&nbsp;<br>2. Executes command for each element in the array. <strong>${record}</strong> can be used to reference the variable value:</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123; .echo $&#123;record&#125; &#125;</span><br></pre></td></tr></table></figure>
-
-<p>Now our goal is to remove unnecessary lines. It can be done using <strong>/pS</strong> and  <strong>/ps</strong> parameters. </p>
+<p>&nbsp;<br>Now our goal is to remove unnecessary lines. It can be done using <strong>/pS</strong> and  <strong>/ps</strong> parameters. </p>
 <p><strong>/pS</strong> skips first n records of the array. In our case, we don’t need lines which go before [0] inclusive. There are 22 such records. Parameters use hexadeximal format, so instead of 22 we need to use 16 (0x16).</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0:014&gt; .foreach /pS 16 (record &#123; !DumpArray /d 000001d837b4d860 &#125;) &#123; .echo $&#123;record&#125; &#125;</span><br><span class="line">000001d8537b06c0</span><br><span class="line">[1]</span><br><span class="line">000001d8537c9e38</span><br><span class="line">[2]</span><br><span class="line">000001d8537ca220</span><br><span class="line">[3]</span><br><span class="line">000001d8537cddd8</span><br><span class="line">[4]</span><br><span class="line">000001d8537ce060</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-<p>Looks better, but we still have [n] values. Using <strong>/ps</strong> parameter, it is possible to take every n-th element in the array. In our case we want to take odd lines. Using 1 for /ps we get only addresses. </p>
+<p>&nbsp;<br>Looks better, but we still have [n] values. Using <strong>/ps</strong> parameter, it is possible to take every n-th element in the array. In our case we want to take odd lines. Using 1 for /ps we get only addresses. </p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0:014&gt; .foreach /pS 16 /ps 1 (record &#123; !DumpArray /d 000001d837b4d860 &#125;) &#123; .echo $&#123;record&#125; &#125;</span><br><span class="line">000001d8537b06c0</span><br><span class="line">000001d8537c9e38</span><br><span class="line">000001d8537ca220</span><br><span class="line">000001d8537cddd8</span><br><span class="line">000001d8537ce060</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-<p>And finally, let’s change the .echo command to <strong>!objsize</strong> to get the size of each record</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0:014&gt; .foreach /pS 16 /ps 1 (record &#123; !DumpArray /d 000001d837b4d860 &#125;) &#123; !objsize $&#123;record&#125; &#125;</span><br><span class="line">sizeof(000001d8537b06c0) = 256288 (0x3e920) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537c9e38) = 163792 (0x27fd0) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537ca220) = 329792 (0x50840) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537cddd8) = 90336 (0x160e0) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537ce060) = 330552 (0x50b38) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537d0040) = 152928 (0x25560) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br></pre></td></tr></table></figure>
+<p>&nbsp;<br>And finally, let’s change the .echo command to <strong>!objsize</strong> to get the size of each record</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0:014&gt; .foreach /pS 16 /ps 1 (record &#123; !DumpArray /d 000001d837b4d860 &#125;) &#123; !objsize $&#123;record&#125; &#125;</span><br><span class="line">sizeof(000001d8537b06c0) = 256288 (0x3e920) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537c9e38) = 163792 (0x27fd0) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537ca220) = 329792 (0x50840) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537cddd8) = 90336 (0x160e0) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537ce060) = 330552 (0x50b38) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br></pre></td></tr></table></figure>
           
         
       </div>
@@ -664,6 +732,10 @@ There are two main sources of the marketing definition items:
   <ul class="entry">
     
       <li>
+        <a href="/2021/12/05/HowToCreateAssetUsingRESTAPI/">How to create an asset using REST API</a>
+      </li>
+    
+      <li>
         <a href="/2021/11/09/PublicLinkAPI/">Creating and updating public links via REST API in Sitecore Content Hub</a>
       </li>
     
@@ -679,10 +751,6 @@ There are two main sources of the marketing definition items:
         <a href="/2019/08/17/HowEAReduceFunctionalityWorks/">How Experience Analytics Reduce functionality works</a>
       </li>
     
-      <li>
-        <a href="/2019/08/04/MissingDefinitionItems/">How to address &#34;Definition not found&#34; issue during aggregation</a>
-      </li>
-    
   </ul>
 </div>
 
@@ -693,11 +761,13 @@ There are two main sources of the marketing definition items:
 <div class="widget tag">
   <h3 class="title">Tags</h3>
   
-    <a href="/tags/Content-Hub/">Content Hub<small>1</small></a>
+    <a href="/tags/Content-Hub/">Content Hub<small>2</small></a>
   
     <a href="/tags/Experience-Analytics/">Experience Analytics<small>1</small></a>
   
     <a href="/tags/Marketing-Automation/">Marketing Automation<small>1</small></a>
+  
+    <a href="/tags/Powershell/">Powershell<small>1</small></a>
   
     <a href="/tags/SOLR/">SOLR<small>1</small></a>
   

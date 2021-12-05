@@ -1,0 +1,367 @@
+<!DOCTYPE HTML>
+
+<html lang="en">
+  
+<head>
+  <meta charset="utf-8">
+  
+  <title>How to create an asset using REST API | SPL Advanced Tricks</title>
+  <meta name="author" content="Sergey Plashenko">
+  
+  <meta name="description" content="Personal blog about my findings and investigations in Sitecore and not only.">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="How to create an asset using REST API"/>
+  <meta property="og:site_name" content="SPL Advanced Tricks"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <meta http-equiv="Content-Language" content="en"/>
+  
+
+  <link href="/img/favicon.png" rel="icon">
+  
+    <link rel="apple-touch-icon" href="/img/apple-icon.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/apple-icon.png">
+    
+
+  <link rel="alternate" href="/atom.xml" title="SPL Advanced Tricks" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  
+  <style type="text/css">
+  /* Tim Pietrusky advanced checkbox hack (Android <= 4.1.2) */
+body{ -webkit-animation: bugfix infinite 1s; }
+@-webkit-keyframes bugfix { from {padding:0;} to {padding:0;} }
+
+  
+
+  
+    article .post-content-index .entry{max-height: 550px; overflow:hidden;}
+  
+</style>
+
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+  
+  
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-144711500-1', 'auto');
+  ga('send', 'pageview');
+ 
+</script>
+
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header id="header" class="inner"><div class="padding">
+	<div class="alignleft logo">
+	  <h1><a href="/">SPL Advanced Tricks</a></h1>
+	</div>
+	<nav id="main-nav" class="alignright">
+		<input type="checkbox" id="toggle" />
+		<label for="toggle" class="toggle" data-open="Main Menu" data-close="Close Menu" onclick><i class="fa fa-bars"></i></label>
+	  <ul class="menu">
+	    
+	      <li><a href="/">Home</a></li>
+	    
+	      <li><a href="/archives">Archives</a></li>
+	    
+	    
+	  </ul>
+	</nav>
+	<div class="clearfix"></div>
+</div>
+</header>
+  <div id="page-heading-wrap">
+    <div class="inner">
+      <div class="padding">
+        
+          <h1>How to create an asset using REST API</h1>
+          <ul>
+            <li>
+              <span class="heading-span">Posted on: </span>
+              <time datetime="2021-12-05T19:37:00.000Z">2021-12-05</time>
+            </li>
+            
+              <li>
+                <span class="heading-span">By: </span>
+
+                
+                  <a href="/">Sergey Plashenko</a>
+                
+
+              </li>
+            
+            <li>
+              <!--span class="heading-span">With: </span-->
+              
+                <a href="#disqus_thread">Comments</a>
+
+              
+            </li>
+          </ul>
+        
+      </div>
+    </div>
+  </div>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper" class="padding"><article class="post">
+  
+  
+    <div class="post-content">
+  
+      
+      <div class="entry">
+        
+          <p>The following article describes how Upload API V2 can be used:<br><a target="_blank" rel="noopener" href="https://docs.stylelabs.com/en-us/contenthub/4.0.x/content/integrations/rest-api/upload/upload-api-v2.html">https://docs.stylelabs.com/en-us/contenthub/4.0.x/content/integrations/rest-api/upload/upload-api-v2.html</a>.<br>&nbsp;<br>Let’s demonstate the usage of API using Powershell 7. Uploading flow consists of three steps:</p>
+<h2 id="Request-an-upload"><a href="#Request-an-upload" class="headerlink" title="Request an upload"></a>Request an upload</h2><p>First, an asset needs to be created. It can be done using the following code:</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$xAuthToken</span> = <span class="string">&quot;enter your auth token guid here&quot;</span></span><br><span class="line"><span class="variable">$hostName</span> = <span class="string">&quot;https://YourCHHostname&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$fileName</span> = <span class="string">&quot;Test.png&quot;</span></span><br><span class="line"><span class="variable">$filePath</span> = <span class="string">&quot;C:\TempDownloads\Test.png&quot;</span></span><br><span class="line"><span class="variable">$fileSize</span> = <span class="number">792</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># create request</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$createAssetBody</span> = <span class="selector-tag">@</span>&#123;</span><br><span class="line">    file_name = <span class="variable">$fileName</span></span><br><span class="line">    file_size = <span class="variable">$fileSize</span></span><br><span class="line">    upload_configuration = <span class="selector-tag">@</span>&#123;</span><br><span class="line">        name = <span class="string">&quot;AssetUploadConfiguration&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    action = <span class="selector-tag">@</span>&#123;</span><br><span class="line">        name = <span class="string">&quot;NewAsset&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125; | <span class="built_in">ConvertTo-Json</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$createUrl</span> = <span class="variable">$hostName</span> + <span class="string">&quot;/api/v2.0/upload&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$createResponse</span> = <span class="built_in">Invoke-WebRequest</span> <span class="literal">-Uri</span> <span class="variable">$createUrl</span> <span class="literal">-Method</span> <span class="string">&#x27;POST&#x27;</span> <span class="literal">-Body</span> <span class="variable">$createAssetBody</span> <span class="literal">-H</span> <span class="selector-tag">@</span>&#123;<span class="string">&quot;x-auth-token&quot;</span> = <span class="variable">$xAuthToken</span>; <span class="string">&quot;Content-Type&quot;</span> = <span class="string">&quot;application/json&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&nbsp;<br>In the response, we will get the following data:</p>
+<ol>
+<li>Response body has upload_identifier and file_identifier</li>
+</ol>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;upload_identifier&quot;</span>: <span class="string">&quot;uploadidentifier&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;file_identifier&quot;</span>: <span class="string">&quot;fileidentifier&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&nbsp;</p>
+<ol start="2">
+<li>Location response Header contains the URL where we need to upload the data. </li>
+</ol>
+<h2 id="Perform-the-upload"><a href="#Perform-the-upload" class="headerlink" title="Perform the upload"></a>Perform the upload</h2><p>For uploading the file, the approach described in this article is used: <a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest?view=powershell-7.2#example-5--submit-a-multipart-form-data-file">https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest?view=powershell-7.2#example-5--submit-a-multipart-form-data-file</a></p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># upload request</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$uploadUrl</span> = <span class="variable">$createResponse</span>.Headers.Location[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="variable">$fileStream</span> = [<span class="type">System.IO.FileStream</span>]::new(<span class="variable">$filePath</span>, [<span class="type">System.IO.FileMode</span>]::Open)</span><br><span class="line"><span class="variable">$fileHeader</span> = [<span class="type">System.Net.Http.Headers.ContentDispositionHeaderValue</span>]::new(<span class="string">&#x27;form-data&#x27;</span>)</span><br><span class="line"><span class="variable">$fileHeader</span>.Name = <span class="variable">$fileName</span></span><br><span class="line"><span class="variable">$fileHeader</span>.FileName = <span class="built_in">Split-Path</span> <span class="literal">-leaf</span> <span class="variable">$filePath</span></span><br><span class="line"><span class="variable">$fileContent</span> = [<span class="type">System.Net.Http.StreamContent</span>]::new(<span class="variable">$fileStream</span>)</span><br><span class="line"><span class="variable">$fileContent</span>.Headers.ContentDisposition = <span class="variable">$fileHeader</span></span><br><span class="line"><span class="variable">$fileContent</span>.Headers.ContentType = [<span class="type">System.Net.Http.Headers.MediaTypeHeaderValue</span>]::Parse(<span class="string">&quot;text/plain&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="variable">$multipartContent</span> = [<span class="type">System.Net.Http.MultipartFormDataContent</span>]::new()</span><br><span class="line"><span class="variable">$multipartContent</span>.Add(<span class="variable">$fileContent</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">Invoke-WebRequest</span> <span class="literal">-Body</span> <span class="variable">$multipartContent</span> <span class="literal">-Method</span> <span class="string">&#x27;POST&#x27;</span> <span class="literal">-Uri</span> <span class="variable">$uploadUrl</span> <span class="literal">-Headers</span> <span class="selector-tag">@</span>&#123;<span class="string">&quot;x-auth-token&quot;</span> = <span class="variable">$xAuthToken</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$fileStream</span>.Close()</span><br></pre></td></tr></table></figure>
+
+<h2 id="Finalize-the-upload"><a href="#Finalize-the-upload" class="headerlink" title="Finalize the upload"></a>Finalize the upload</h2><p>To finalize the request, we need to post the response body received on the “Request an upload” step:</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment">#finalize request</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$finalizeUrl</span> = <span class="variable">$hostName</span> + <span class="string">&quot;/api/v2.0/upload/finalize&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">Invoke-WebRequest</span> <span class="literal">-Uri</span> <span class="variable">$finalizeUrl</span> <span class="literal">-Method</span> <span class="string">&#x27;POST&#x27;</span> <span class="literal">-Body</span> <span class="variable">$createResponse</span>.Content <span class="literal">-H</span> <span class="selector-tag">@</span>&#123;<span class="string">&quot;x-auth-token&quot;</span> = <span class="variable">$xAuthToken</span>; <span class="string">&quot;Content-Type&quot;</span> = <span class="string">&quot;application/json&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Full-script"><a href="#Full-script" class="headerlink" title="Full script"></a>Full script</h2><figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$xAuthToken</span> = <span class="string">&quot;enter your auth token guid here&quot;</span></span><br><span class="line"><span class="variable">$hostName</span> = <span class="string">&quot;https://YourCHHostname&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$fileName</span> = <span class="string">&quot;Test.png&quot;</span></span><br><span class="line"><span class="variable">$filePath</span> = <span class="string">&quot;C:\TempDownloads\Test.png&quot;</span></span><br><span class="line"><span class="variable">$fileSize</span> = <span class="number">792</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># create request</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$createAssetBody</span> = <span class="selector-tag">@</span>&#123;</span><br><span class="line">    file_name = <span class="variable">$fileName</span></span><br><span class="line">    file_size = <span class="variable">$fileSize</span></span><br><span class="line">    upload_configuration = <span class="selector-tag">@</span>&#123;</span><br><span class="line">        name = <span class="string">&quot;AssetUploadConfiguration&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    action = <span class="selector-tag">@</span>&#123;</span><br><span class="line">        name = <span class="string">&quot;NewAsset&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125; | <span class="built_in">ConvertTo-Json</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$createUrl</span> = <span class="variable">$hostName</span> + <span class="string">&quot;/api/v2.0/upload&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$createResponse</span> = <span class="built_in">Invoke-WebRequest</span> <span class="literal">-Uri</span> <span class="variable">$createUrl</span> <span class="literal">-Method</span> <span class="string">&#x27;POST&#x27;</span> <span class="literal">-Body</span> <span class="variable">$createAssetBody</span> <span class="literal">-H</span> <span class="selector-tag">@</span>&#123;<span class="string">&quot;x-auth-token&quot;</span> = <span class="variable">$xAuthToken</span>; <span class="string">&quot;Content-Type&quot;</span> = <span class="string">&quot;application/json&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># upload request</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$uploadUrl</span> = <span class="variable">$createResponse</span>.Headers.Location[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="variable">$fileStream</span> = [<span class="type">System.IO.FileStream</span>]::new(<span class="variable">$filePath</span>, [<span class="type">System.IO.FileMode</span>]::Open)</span><br><span class="line"><span class="variable">$fileHeader</span> = [<span class="type">System.Net.Http.Headers.ContentDispositionHeaderValue</span>]::new(<span class="string">&#x27;form-data&#x27;</span>)</span><br><span class="line"><span class="variable">$fileHeader</span>.Name = <span class="variable">$fileName</span></span><br><span class="line"><span class="variable">$fileHeader</span>.FileName = <span class="built_in">Split-Path</span> <span class="literal">-leaf</span> <span class="variable">$filePath</span></span><br><span class="line"><span class="variable">$fileContent</span> = [<span class="type">System.Net.Http.StreamContent</span>]::new(<span class="variable">$fileStream</span>)</span><br><span class="line"><span class="variable">$fileContent</span>.Headers.ContentDisposition = <span class="variable">$fileHeader</span></span><br><span class="line"><span class="variable">$fileContent</span>.Headers.ContentType = [<span class="type">System.Net.Http.Headers.MediaTypeHeaderValue</span>]::Parse(<span class="string">&quot;text/plain&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="variable">$multipartContent</span> = [<span class="type">System.Net.Http.MultipartFormDataContent</span>]::new()</span><br><span class="line"><span class="variable">$multipartContent</span>.Add(<span class="variable">$fileContent</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">Invoke-WebRequest</span> <span class="literal">-Body</span> <span class="variable">$multipartContent</span> <span class="literal">-Method</span> <span class="string">&#x27;POST&#x27;</span> <span class="literal">-Uri</span> <span class="variable">$uploadUrl</span> <span class="literal">-Headers</span> <span class="selector-tag">@</span>&#123;<span class="string">&quot;x-auth-token&quot;</span> = <span class="variable">$xAuthToken</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$fileStream</span>.Close()</span><br><span class="line"></span><br><span class="line"><span class="comment">#finalize request</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$finalizeUrl</span> = <span class="variable">$hostName</span> + <span class="string">&quot;/api/v2.0/upload/finalize&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">Invoke-WebRequest</span> <span class="literal">-Uri</span> <span class="variable">$finalizeUrl</span> <span class="literal">-Method</span> <span class="string">&#x27;POST&#x27;</span> <span class="literal">-Body</span> <span class="variable">$createResponse</span>.Content <span class="literal">-H</span> <span class="selector-tag">@</span>&#123;<span class="string">&quot;x-auth-token&quot;</span> = <span class="variable">$xAuthToken</span>; <span class="string">&quot;Content-Type&quot;</span> = <span class="string">&quot;application/json&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+
+        
+      </div>
+      <footer>
+        
+          
+          
+  
+  <div class="tags">
+    <a href="/tags/Content-Hub/">Content Hub</a>, <a href="/tags/Powershell/">Powershell</a>
+  </div>
+
+          <div class="share">
+  
+
+    
+
+    
+
+    
+
+    
+      <a target="_blank" rel="noopener" href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+    
+  
+</div>
+          
+<nav class="article-nav clearfix">
+ 
+
+<div class="article-next">
+<a href="/2021/11/09/PublicLinkAPI/"  title="Creating and updating public links via REST API in Sitecore Content Hub">
+ <span>Creating and updating public links via REST API in Sitecore Content Hub
+</span>
+<i class="fa fa-long-arrow-right"></i>
+</a>
+</div>
+
+</nav>
+
+        
+        <div class="clearfix"></div>
+      </footer>
+    </div>
+</article>
+
+
+<section id="comment">
+  <h2 class="title">Comments</h2>
+
+  
+  <div id="disqus_thread"></div>
+  <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a target="_blank" rel="noopener" href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright"><div class="padding">
+	
+	  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:spl-tricks.github.io">
+  </form>
+</div>
+	
+	  
+<div class="widget recent-post">
+  <h3 class="title">Recent Posts</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/2021/12/05/HowToCreateAssetUsingRESTAPI/">How to create an asset using REST API</a>
+      </li>
+    
+      <li>
+        <a href="/2021/11/09/PublicLinkAPI/">Creating and updating public links via REST API in Sitecore Content Hub</a>
+      </li>
+    
+      <li>
+        <a href="/2021/11/09/UsingForeachWindbg/">Using .foreach in windbg to find array entities sizes</a>
+      </li>
+    
+      <li>
+        <a href="/2019/09/07/SOLRQueryReplaying/">How to get the SOLR query generated by xConnect search and replay it</a>
+      </li>
+    
+      <li>
+        <a href="/2019/08/17/HowEAReduceFunctionalityWorks/">How Experience Analytics Reduce functionality works</a>
+      </li>
+    
+  </ul>
+</div>
+
+	
+	  
+	
+	  
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  
+    <a href="/tags/Content-Hub/">Content Hub<small>2</small></a>
+  
+    <a href="/tags/Experience-Analytics/">Experience Analytics<small>1</small></a>
+  
+    <a href="/tags/Marketing-Automation/">Marketing Automation<small>1</small></a>
+  
+    <a href="/tags/Powershell/">Powershell<small>1</small></a>
+  
+    <a href="/tags/SOLR/">SOLR<small>1</small></a>
+  
+    <a href="/tags/Sitecore/">Sitecore<small>5</small></a>
+  
+    <a href="/tags/WinDbg/">WinDbg<small>1</small></a>
+  
+    <a href="/tags/xConnect/">xConnect<small>1</small></a>
+  
+    <a href="/tags/xConnect-Search/">xConnect Search<small>1</small></a>
+  
+    <a href="/tags/xDB/">xDB<small>3</small></a>
+  
+</div>
+
+	
+</div></aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="padding">
+	<div class="alignleft">
+	  
+	  &copy; 2021 Sergey Plashenko
+	  
+	  <p>Powerd by <a href="http://hexo.io/" target="_blank">hexo</a>
+	  and theme is modified <a href="https://github.com/halfer53/metro-light" target="_blank">metro-light</a></p>
+	</div>
+
+	<div class="alignright">
+		
+			<a href="https://github.com/sc-spl" target="_blank" title="Sergey Plashenko Github"><img src="/img/GitHub-Mark-32px.png" /></a>	
+		
+		
+		
+		
+	</div>
+
+	<div class="clearfix"></div>
+</div>
+
+<div class="scroll-top"><i class="fa fa-arrow-circle-up"></i></div></footer>
+  
+
+		<script type="text/javascript">
+				var disqus_shortname = 'spl-tricks';
+
+		        (function() {
+		            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+		            
+					var page_has_comments = 'true'; 
+
+					if (page_has_comments){
+						dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+						(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+					}
+				})();
+		</script>
+
+		<script type="text/javascript">
+				var comments_count_enabled = 'false'; 
+				
+				if(comments_count_enabled === 'true') {						
+					var disqus_shortname = 'spl-tricks'; 
+
+					(function () {
+						var s = document.createElement('script'); s.async = true;
+						s.type = 'text/javascript';
+						s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+						(document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+					}());
+				}
+		</script>
+
+  
+
+
+<!--link href="https://opensource.keycdn.com/fontawesome/4.6.3/font-awesome.min.css" rel="stylesheet"-->
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.1.min.js"></script>
+
+
+
+<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/3.0.4/jquery.imagesloaded.js"></script> -->
+<!-- <script src="/js/gallery.js"></script> -->
+
+
+
+<script type="text/javascript">
+$(window).scroll(function() {
+
+    if($(this).scrollTop() > 400) {
+        $('.scroll-top').fadeIn(200);
+    } else {
+        $('.scroll-top').fadeOut(200);
+    }
+});
+
+$('.scroll-top').bind('click', function(e) {
+    e.preventDefault();
+    $('body,html').animate({scrollTop:0},200);
+});
+</script>
+
+
+</body>
+</html>

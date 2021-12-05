@@ -127,34 +127,24 @@ body{ -webkit-animation: bugfix infinite 1s; }
       
       <div class="entry">
         
-          <p>There is an array of objects and the goal is to find the biggest ones.</p>
-<p>DumpArray outputs the record addresses which we may use:</p>
+          <p>There is an array of objects and the goal is to find the biggest ones. DumpArray outputs the record addresses which we may use:</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0:014&gt; !DumpArray /d 000001d837b4d860</span><br><span class="line">Name:        Sitecore.Xdb.Collection.Model.ContactDataRecord[]</span><br><span class="line">MethodTable: 00007ffb94f03888</span><br><span class="line">EEClass:     00007ffbf15d56b0</span><br><span class="line">Size:        83312(0x14570) bytes</span><br><span class="line">Array:       Rank 1, Number of elements 10411, Type CLASS</span><br><span class="line">Element Methodtable: 00007ffb948360f0</span><br><span class="line">[0] 000001d8537b06c0</span><br><span class="line">[1] 000001d8537c9e38</span><br><span class="line">[2] 000001d8537ca220</span><br><span class="line">[3] 000001d8537cddd8</span><br><span class="line">[4] 000001d8537ce060</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-<p>To iterate the addresses, .foreach command can be used: <a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/-foreach">https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/-foreach</a></p>
-<p>Let’s first write the command which will foreach the !DumpArray command output:</p>
+<p>&nbsp;<br>To iterate the addresses, .foreach command can be used:<br><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/-foreach">https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/-foreach</a><br>&nbsp;<br>Let’s first write the command which will foreach the !DumpArray command output:</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0:014&gt; .foreach (record &#123; !DumpArray /d 000001d837b4d860 &#125;) &#123; .echo $&#123;record&#125; &#125;</span><br><span class="line">Name:</span><br><span class="line">Sitecore.Xdb.Collection.Model.ContactDataRecord[]</span><br><span class="line">MethodTable:</span><br><span class="line">00007ffb94f03888</span><br><span class="line">EEClass:</span><br><span class="line">00007ffbf15d56b0</span><br><span class="line">Size:</span><br><span class="line">83312(0x14570)</span><br><span class="line">bytes</span><br><span class="line">Array:</span><br><span class="line">Rank</span><br><span class="line">1,</span><br><span class="line">Number</span><br><span class="line">of</span><br><span class="line">elements</span><br><span class="line">10411,</span><br><span class="line">Type</span><br><span class="line">CLASS</span><br><span class="line">Element</span><br><span class="line">Methodtable:</span><br><span class="line">00007ffb948360f0</span><br><span class="line">[0]</span><br><span class="line">000001d8537b06c0</span><br><span class="line">[1]</span><br><span class="line">000001d8537c9e38</span><br><span class="line">[2]</span><br><span class="line">000001d8537ca220</span><br><span class="line">[3]</span><br><span class="line">000001d8537cddd8</span><br><span class="line">[4]</span><br><span class="line">000001d8537ce060</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-<p>In detail, the script does the following:</p>
+<p>&nbsp;<br>In detail, the script does the following:</p>
 <ol>
 <li>Parses the output of the command. The resulting output is an array of strings. <strong>record</strong> is the variable name of the array element. </li>
 </ol>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">(record &#123; !DumpArray /d 000001d837b4d860 &#125;)</span><br></pre></td></tr></table></figure>
-
-<ol start="2">
-<li>Executes command for each element in the array. <strong>${record}</strong> can be used to reference the variable value:</li>
-</ol>
+<p>&nbsp;<br>2. Executes command for each element in the array. <strong>${record}</strong> can be used to reference the variable value:</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123; .echo $&#123;record&#125; &#125;</span><br></pre></td></tr></table></figure>
-
-<p>Now our goal is to remove unnecessary lines. It can be done using <strong>/pS</strong> and  <strong>/ps</strong> parameters. </p>
+<p>&nbsp;<br>Now our goal is to remove unnecessary lines. It can be done using <strong>/pS</strong> and  <strong>/ps</strong> parameters. </p>
 <p><strong>/pS</strong> skips first n records of the array. In our case, we don’t need lines which go before [0] inclusive. There are 22 such records. Parameters use hexadeximal format, so instead of 22 we need to use 16 (0x16).</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0:014&gt; .foreach /pS 16 (record &#123; !DumpArray /d 000001d837b4d860 &#125;) &#123; .echo $&#123;record&#125; &#125;</span><br><span class="line">000001d8537b06c0</span><br><span class="line">[1]</span><br><span class="line">000001d8537c9e38</span><br><span class="line">[2]</span><br><span class="line">000001d8537ca220</span><br><span class="line">[3]</span><br><span class="line">000001d8537cddd8</span><br><span class="line">[4]</span><br><span class="line">000001d8537ce060</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-<p>Looks better, but we still have [n] values. Using <strong>/ps</strong> parameter, it is possible to take every n-th element in the array. In our case we want to take odd lines. Using 1 for /ps we get only addresses. </p>
+<p>&nbsp;<br>Looks better, but we still have [n] values. Using <strong>/ps</strong> parameter, it is possible to take every n-th element in the array. In our case we want to take odd lines. Using 1 for /ps we get only addresses. </p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0:014&gt; .foreach /pS 16 /ps 1 (record &#123; !DumpArray /d 000001d837b4d860 &#125;) &#123; .echo $&#123;record&#125; &#125;</span><br><span class="line">000001d8537b06c0</span><br><span class="line">000001d8537c9e38</span><br><span class="line">000001d8537ca220</span><br><span class="line">000001d8537cddd8</span><br><span class="line">000001d8537ce060</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-<p>And finally, let’s change the .echo command to <strong>!objsize</strong> to get the size of each record</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0:014&gt; .foreach /pS 16 /ps 1 (record &#123; !DumpArray /d 000001d837b4d860 &#125;) &#123; !objsize $&#123;record&#125; &#125;</span><br><span class="line">sizeof(000001d8537b06c0) = 256288 (0x3e920) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537c9e38) = 163792 (0x27fd0) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537ca220) = 329792 (0x50840) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537cddd8) = 90336 (0x160e0) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537ce060) = 330552 (0x50b38) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537d0040) = 152928 (0x25560) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br></pre></td></tr></table></figure>
+<p>&nbsp;<br>And finally, let’s change the .echo command to <strong>!objsize</strong> to get the size of each record</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0:014&gt; .foreach /pS 16 /ps 1 (record &#123; !DumpArray /d 000001d837b4d860 &#125;) &#123; !objsize $&#123;record&#125; &#125;</span><br><span class="line">sizeof(000001d8537b06c0) = 256288 (0x3e920) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537c9e38) = 163792 (0x27fd0) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537ca220) = 329792 (0x50840) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537cddd8) = 90336 (0x160e0) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br><span class="line">sizeof(000001d8537ce060) = 330552 (0x50b38) bytes (Sitecore.Xdb.Collection.Model.ContactDataRecord)</span><br></pre></td></tr></table></figure>
         
       </div>
       <footer>
@@ -236,6 +226,10 @@ body{ -webkit-animation: bugfix infinite 1s; }
   <ul class="entry">
     
       <li>
+        <a href="/2021/12/05/HowToCreateAssetUsingRESTAPI/">How to create an asset using REST API</a>
+      </li>
+    
+      <li>
         <a href="/2021/11/09/PublicLinkAPI/">Creating and updating public links via REST API in Sitecore Content Hub</a>
       </li>
     
@@ -251,10 +245,6 @@ body{ -webkit-animation: bugfix infinite 1s; }
         <a href="/2019/08/17/HowEAReduceFunctionalityWorks/">How Experience Analytics Reduce functionality works</a>
       </li>
     
-      <li>
-        <a href="/2019/08/04/MissingDefinitionItems/">How to address &#34;Definition not found&#34; issue during aggregation</a>
-      </li>
-    
   </ul>
 </div>
 
@@ -265,11 +255,13 @@ body{ -webkit-animation: bugfix infinite 1s; }
 <div class="widget tag">
   <h3 class="title">Tags</h3>
   
-    <a href="/tags/Content-Hub/">Content Hub<small>1</small></a>
+    <a href="/tags/Content-Hub/">Content Hub<small>2</small></a>
   
     <a href="/tags/Experience-Analytics/">Experience Analytics<small>1</small></a>
   
     <a href="/tags/Marketing-Automation/">Marketing Automation<small>1</small></a>
+  
+    <a href="/tags/Powershell/">Powershell<small>1</small></a>
   
     <a href="/tags/SOLR/">SOLR<small>1</small></a>
   
